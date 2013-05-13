@@ -1,0 +1,7 @@
+﻿<NUnitProject>
+  <Settings activeconfig="Debug" processModel="Default" domainUsage="Default" appbase="D:\Daten\Projekte\Mastersign.Expressions" />
+  <Config name="Debug" binpathtype="Auto" runtimeFramework="net-4.0.21006">
+    <assembly path="Mastersign.Expressions\bin\Debug\Mastersign.Expressions.dll" />
+  </Config>
+  <Config name="Release" binpathtype="Auto" />
+</NUnitProject>
