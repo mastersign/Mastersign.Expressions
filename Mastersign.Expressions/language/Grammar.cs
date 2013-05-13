@@ -131,6 +131,12 @@ namespace de.mastersign.expressions.language
             from rPar in Parse.Char(')')
             select new Group(expr);
 
+        public static readonly Parser<MemberRead> MemberRead =
+            from target in Parse.Ref(() => Term)
+            from period in Parse.Char('.').Token()
+            from memberIdentifier in Identifier.Text()
+            select new MemberRead(target, memberIdentifier);
+
         public static readonly Parser<string> ListSeparator =
             from seperator in Parse.Char(',').Once().Text().Token()
             select seperator;
