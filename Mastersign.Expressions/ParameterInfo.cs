@@ -24,7 +24,7 @@ namespace de.mastersign.expressions
         internal ParameterExpression Expression { get; private set; }
 
         /// <summary>
-        /// Initializes a new instance of <see cref="Parameter"/>.
+        /// Initializes a new instance of <see cref="ParameterInfo"/>.
         /// </summary>
         /// <param name="name">The name of the parameter.</param>
         /// <param name="type">The type of the parameter.</param>
