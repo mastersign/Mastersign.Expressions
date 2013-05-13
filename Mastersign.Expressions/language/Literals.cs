@@ -35,7 +35,7 @@ namespace de.mastersign.expressions.language
 
         public override Type GetValueType(EvaluationContext context)
         {
-            return null;
+            return typeof(object);
         }
 
         public override object GetValue(EvaluationContext context, object[] parameters)
