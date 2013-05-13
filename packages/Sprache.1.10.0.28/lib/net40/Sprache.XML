@@ -32,7 +32,7 @@
         </member>
         <member name="M:Sprache.Input.GetHashCode">
             <summary>
-            Serves as a hash function for a particular type. 
+            Serves as a hash function for a particular type.
             </summary>
             <returns>
             A hash code for the current <see cref="T:Sprache.Input"/>.
@@ -102,19 +102,60 @@
             Gets the current column.
             </summary>
         </member>
+        <member name="T:Sprache.IOption`1">
+            <summary>
+            Represents an optional result.
+            </summary>
+            <typeparam name="T">The result type.</typeparam>
+        </member>
+        <member name="M:Sprache.IOption`1.GetOrDefault">
+            <summary>
+            Gets the matched result or a default value.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Sprache.IOption`1.Get">
+            <summary>
+            Gets the matched result.
+            </summary>
+        </member>
+        <member name="P:Sprache.IOption`1.IsEmpty">
+            <summary>
+            Gets a value indicating whether this instance is empty.
+            </summary>
+        </member>
+        <member name="P:Sprache.IOption`1.IsDefined">
+            <summary>
+            Gets a value indicating whether this instance is defined.
+            </summary>
+        </member>
+        <member name="T:Sprache.OptionExtensions">
+            <summary>
+            Extensions for <see cref="T:Sprache.IOption`1"/>.
+            </summary>
+        </member>
+        <member name="M:Sprache.OptionExtensions.GetOrElse``1(Sprache.IOption{``0},``0)">
+            <summary>
+            Gets the value or else returns a default value.
+            </summary>
+            <typeparam name="T">The result type.</typeparam>
+            <param name="option"></param>
+            <param name="defaultValue">The default value.</param>
+            <returns></returns>
+        </member>
         <member name="T:Sprache.IPositionAware`1">
             <summary>
-            An interface for objects that have a source position.
+            An interface for objects that have a source <see cref="T:Sprache.Position"/>.
             </summary>
-            <typeparam name="T"></typeparam>
+            <typeparam name="T">Type of the matched result.</typeparam>
         </member>
         <member name="M:Sprache.IPositionAware`1.SetPos(Sprache.Position,System.Int32)">
             <summary>
-            Set the start pos and the matched length.
+            Set the start <see cref="T:Sprache.Position"/> and the matched length.
             </summary>
-            <param name="startPos"></param>
-            <param name="length"></param>
-            <returns></returns>
+            <param name="startPos">The start position</param>
+            <param name="length">The matched length.</param>
+            <returns>The matched result.</returns>
         </member>
         <member name="T:Sprache.Parse">
             <summary>
@@ -144,11 +185,53 @@
             <param name="c"></param>
             <returns></returns>
         </member>
+        <member name="M:Sprache.Parse.Chars(System.Char[])">
+            <summary>
+            Parse a single character of any in c
+            </summary>
+            <param name="c"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Sprache.Parse.Chars(System.String)">
+            <summary>
+            Parse a single character of any in c
+            </summary>
+            <param name="c"></param>
+            <returns></returns>
+        </member>
         <member name="M:Sprache.Parse.CharExcept(System.Char)">
             <summary>
             Parse a single character except c.
             </summary>
             <param name="c"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Sprache.Parse.CharExcept(System.Collections.Generic.IEnumerable{System.Char})">
+            <summary>
+            Parses a single character except for those in the given parameters
+            </summary>
+            <param name="c"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Sprache.Parse.CharExcept(System.String)">
+            <summary>
+            Parses a single character except for those in c
+            </summary>  
+            <param name="c"></param>
+            <returns></returns> 
+        </member>
+        <member name="M:Sprache.Parse.IgnoreCase(System.Char)">
+            <summary>
+            Parse a single character in a case-insensitive fashion.
+            </summary>
+            <param name="c"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Sprache.Parse.IgnoreCase(System.String)">
+            <summary>
+            Parse a string in a case-insensitive fashion.
+            </summary>
+            <param name="s"></param>
             <returns></returns>
         </member>
         <member name="F:Sprache.Parse.AnyChar">
@@ -191,13 +274,6 @@
             Parse a numeric character.
             </summary>
         </member>
-        <member name="M:Sprache.Parse.Str(System.String)">
-            <summary>
-            Parse a string of characters.
-            </summary>
-            <param name="s"></param>
-            <returns></returns>
-        </member>
         <member name="M:Sprache.Parse.String(System.String)">
             <summary>
             Parse a string of characters.
@@ -205,21 +281,15 @@
             <param name="s"></param>
             <returns></returns>
         </member>
-        <member name="M:Sprache.Parse.Regex(System.String,System.String)">
+        <member name="M:Sprache.Parse.Not``1(Sprache.Parser{``0})">
             <summary>
-            Construct a parser from the given regular expression.
+            Constructs a parser that will fail if the given parser succeeds,
+            and will succeed if the given parser fails. In any case, it won't
+            consume any input. It's like a negative look-ahead in regex.
             </summary>
-            <param name="p">The regex expression.</param>
-            <param name="description">Description of characters that don't match.</param>
-            <returns>a parse of string</returns>
-        </member>
-        <member name="M:Sprache.Parse.Regex(System.Text.RegularExpressions.Regex,System.String)">
-            <summary>
-            Construct a parser from the given regular expression.
-            </summary>
-            <param name="pat">The regex expression.</param>
-            <param name="description">Description of characters that don't match.</param>
-            <returns>a parse of string</returns>
+            <typeparam name="T">The result type of the given parser</typeparam>
+            <param name="parser">The parser to wrap</param>
+            <returns>A parser that is the opposite of the given parser.</returns>
         </member>
         <member name="M:Sprache.Parse.Then``2(Sprache.Parser{``0},System.Func{``0,Sprache.Parser{``1}})">
             <summary>
@@ -261,28 +331,6 @@
             <summary>
             TryParse a stream of elements with at least one item. Except the first
             item, all other items will be matched with the <code>XMany</code> operator.
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="parser"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Sprache.Parse.Opt``1(Sprache.Parser{``0})">
-            <summary>
-            Construct a parser that indicates the given parser
-            is optional. The returned parser will succeed on
-            any input no matter whether the given parser
-            succeeds or not.
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="parser"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Sprache.Parse.Optional``1(Sprache.Parser{``0})">
-            <summary>
-            Construct a parser that indicates the given parser
-            is optional. The returned parser will succeed on
-            any input no matter whether the given parser
-            succeeds or not.
             </summary>
             <typeparam name="T"></typeparam>
             <param name="parser"></param>
@@ -456,15 +504,6 @@
             <param name="apply"></param>
             <returns></returns>
         </member>
-        <member name="M:Sprache.Parse.Positioned``1(Sprache.Parser{``0})">
-            <summary>
-            Construct a parser that will set the position to the position-aware
-            T on succsessful match.
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="parser"></param>
-            <returns></returns>
-        </member>
         <member name="F:Sprache.Parse.Number">
             <summary>
             Parse a number.
@@ -474,6 +513,42 @@
             <summary>
             Parse a decimal number.
             </summary>
+        </member>
+        <member name="M:Sprache.Parse.Positioned``1(Sprache.Parser{``0})">
+            <summary>
+            Construct a parser that will set the position to the position-aware
+            T on succsessful match.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="parser"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Sprache.Parse.Optional``1(Sprache.Parser{``0})">
+            <summary>
+            Construct a parser that indicates the given parser
+            is optional. The returned parser will succeed on
+            any input no matter whether the given parser
+            succeeds or not.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="parser"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Sprache.Parse.Regex(System.String,System.String)">
+            <summary>
+            Construct a parser from the given regular expression.
+            </summary>
+            <param name="pattern">The regex expression.</param>
+            <param name="description">Description of characters that don't match.</param>
+            <returns>a parse of string</returns>
+        </member>
+        <member name="M:Sprache.Parse.Regex(System.Text.RegularExpressions.Regex,System.String)">
+            <summary>
+            Construct a parser from the given regular expression.
+            </summary>
+            <param name="regex">The regex expression.</param>
+            <param name="description">Description of characters that don't match.</param>
+            <returns>a parse of string</returns>
         </member>
         <member name="T:Sprache.ParseException">
             <summary>
@@ -538,6 +613,91 @@
             <param name="input">The input.</param>
             <returns>The result of the parser.</returns>
             <exception cref="T:Sprache.ParseException">It contains the details of the parsing error.</exception>
+        </member>
+        <member name="T:Sprache.Position">
+            <summary>
+            Represents a position in the input.
+            </summary>
+        </member>
+        <member name="M:Sprache.Position.#ctor(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Sprache.Position"/> class.
+            </summary>
+            <param name="pos">The position.</param>
+            <param name="line">The line number.</param>
+            <param name="column">The column.</param>
+        </member>
+        <member name="M:Sprache.Position.FromInput(Sprache.Input)">
+            <summary>
+            Creates an new <see cref="T:Sprache.Position"/> instance from a given <see cref="T:Sprache.Input"/> object.
+            </summary>
+            <param name="input">The current input.</param>
+            <returns>A new <see cref="T:Sprache.Position"/> instance.</returns>
+        </member>
+        <member name="M:Sprache.Position.Equals(System.Object)">
+            <summary>
+            Determines whether the specified <see cref="T:System.Object"/> is equal to the current <see cref="T:Sprache.Position"/>.
+            </summary>
+            <returns>
+            true if the specified <see cref="T:System.Object"/> is equal to the current <see cref="T:Sprache.Position"/>; otherwise, false.
+            </returns>
+            <param name="obj">The object to compare with the current object. </param>
+        </member>
+        <member name="M:Sprache.Position.Equals(Sprache.Position)">
+            <summary>
+            Indicates whether the current <see cref="T:Sprache.Position"/> is equal to another object of the same type.
+            </summary>
+            <returns>
+            true if the current object is equal to the <paramref name="other"/> parameter; otherwise, false.
+            </returns>
+            <param name="other">An object to compare with this object.</param>
+        </member>
+        <member name="M:Sprache.Position.op_Equality(Sprache.Position,Sprache.Position)">
+            <summary>
+            Indicates whether the left <see cref="T:Sprache.Position"/> is equal to the right <see cref="T:Sprache.Position"/>.
+            </summary>
+            <param name="left">The left <see cref="T:Sprache.Position"/>.</param>
+            <param name="right">The right <see cref="T:Sprache.Position"/>.</param>
+            <returns>true if both objects are equal.</returns>
+        </member>
+        <member name="M:Sprache.Position.op_Inequality(Sprache.Position,Sprache.Position)">
+            <summary>
+            Indicates whether the left <see cref="T:Sprache.Position"/> is not equal to the right <see cref="T:Sprache.Position"/>.
+            </summary>
+            <param name="left">The left <see cref="T:Sprache.Position"/>.</param>
+            <param name="right">The right <see cref="T:Sprache.Position"/>.</param>
+            <returns>true if the objects are not equal.</returns>
+        </member>
+        <member name="M:Sprache.Position.GetHashCode">
+            <summary>
+            Serves as a hash function for a particular type.
+            </summary>
+            <returns>
+            A hash code for the current <see cref="T:Sprache.Position"/>.
+            </returns>
+        </member>
+        <member name="M:Sprache.Position.ToString">
+            <summary>
+            Returns a string that represents the current object.
+            </summary>
+            <returns>
+            A string that represents the current object.
+            </returns>
+        </member>
+        <member name="P:Sprache.Position.Pos">
+            <summary>
+            Gets the current positon.
+            </summary>
+        </member>
+        <member name="P:Sprache.Position.Line">
+            <summary>
+            Gets the current line number.
+            </summary>
+        </member>
+        <member name="P:Sprache.Position.Column">
+            <summary>
+            Gets the current column.
+            </summary>
         </member>
         <member name="T:Sprache.IResult`1">
             <summary>

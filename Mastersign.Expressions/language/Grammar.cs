@@ -12,7 +12,7 @@ namespace de.mastersign.expressions.language
         public static string[] Keywords = new[] { "true", "false", "and", "or", "xor", "null" };
 
         public static readonly Parser<NullLiteral> NullLiteral =
-            from src in Parse.Str("null").Token()
+            from src in Parse.String("null").Token().Text()
             select new NullLiteral(src);
 
         private static Parser<string> Suffix(char c)
@@ -67,7 +67,7 @@ namespace de.mastersign.expressions.language
             select new DecimalLiteral(number);
 
         public static readonly Parser<BooleanLiteral> BooleanLiteral =
-            from value in Parse.Str("true").Or(Parse.Str("false")).Token()
+            from value in Parse.String("true").Or(Parse.String("false")).Token().Text()
             select new BooleanLiteral(value);
 
         private static readonly Parser<StringLiteral> emptyString =

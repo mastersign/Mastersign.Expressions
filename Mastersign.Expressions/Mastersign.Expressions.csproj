@@ -57,9 +57,9 @@
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
     </Reference>
-    <Reference Include="Sprache, Version=1.10.0.19, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Sprache, Version=1.10.0.28, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Sprache.1.10.0.19\lib\net40\Sprache.dll</HintPath>
+      <HintPath>..\packages\Sprache.1.10.0.28\lib\net40\Sprache.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
