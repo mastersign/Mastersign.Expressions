@@ -119,7 +119,11 @@ namespace de.mastersign.expressions.language
             if (!semanticSuccess) Assert.Fail("Unexpected semantic error.");
             Assert.IsFalse(sb.Length > 0, "An error message got written.");
             if (!typesMatch1) Assert.Fail("Unexpected result type from interpretation.");
+            if (!typesMatch2) Assert.Fail("Unexpected result type from compiled expression.");
+            if (!typeConsistance1) Assert.Fail("Inconsistent types from interpretation.");
+            if (!typeConsistance2) Assert.Fail("Inconsistent types from compiled expression.");
             if (!valuesMatch1) Assert.Fail("Unexpected result value from interpretation.");
+            if (!valuesMatch2) Assert.Fail("Unexpected result value from compiled expression.");
         }
 
         private static object EvaluateExpression(Expression expr)
@@ -186,7 +190,7 @@ namespace de.mastersign.expressions.language
             ExpectAccept(Grammar.NullLiteral,
                 "null", " null", "null ", "\tnull ");
 
-            ExpectResult("null", null, null);
+            ExpectResult("null", typeof(object), null);
         }
 
         [Test]
