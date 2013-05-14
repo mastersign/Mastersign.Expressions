@@ -9,6 +9,21 @@ namespace de.mastersign.expressions.language
 {
     internal class MemberRead : ExpressionNode
     {
+        public class RightPart : IRightPart
+        {
+            public string MemberIdentifier { get; private set; }
+
+            public RightPart(string memberIdentifier)
+            {
+                MemberIdentifier = memberIdentifier;
+            }
+
+            public ExpressionElement BuildExpressionElement(ExpressionElement leftPart)
+            {
+                return new MemberRead(leftPart, MemberIdentifier);
+            }
+        }
+
         public ExpressionElement Target { get; private set; }
 
         public string MemberIdentifier { get; private set; }
