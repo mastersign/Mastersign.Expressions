@@ -57,6 +57,7 @@ namespace de.mastersign.expressions.language
                 errMessages.AppendLine(string.Format(
                     "Could not find member '{0}' in target type '{1}'.",
                     MemberIdentifier, targetType));
+                res = false;
             }
 
             return res;
@@ -67,7 +68,7 @@ namespace de.mastersign.expressions.language
             var targetType = Target.GetValueType(context);
             return targetType
                 .GetMember(MemberIdentifier)
-                .Where(m => (m is PropertyInfo && ((PropertyInfo)m).CanRead)
+                .Where(m => (m is PropertyInfo && ((PropertyInfo)m).GetGetMethod() != null)
                             || m is FieldInfo)
                 .ToArray();
         }
