@@ -355,6 +355,9 @@ namespace de.mastersign.expressions.language
 
             ExpectAccept(Grammar.Term,
                 "1", "(1+2)", "(true and false)");
+
+            ExpectAccept(Grammar.Term,
+                "a.b.c", "a().b", "(a + b).c");
         }
 
         [Test]
@@ -601,6 +604,7 @@ namespace de.mastersign.expressions.language
 
             ExpectResult(context, "(yes and no) <> true", typeof(bool), true);
             ExpectResult(context, "hello & quest", typeof(string), "Hello42");
+            ExpectResult(context, "(\"abc\" & \"def\").Length", typeof(int), 6);
         }
 
         [Test]
