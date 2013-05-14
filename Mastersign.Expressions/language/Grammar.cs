@@ -131,11 +131,10 @@ namespace de.mastersign.expressions.language
             from rPar in Parse.Char(')')
             select new Group(expr);
 
-        public static readonly Parser<MemberRead> MemberRead =
-            from target in Parse.Ref(() => Term)
+        public static readonly Parser<IRightPart> MemberReadRight =
             from period in Parse.Char('.').Token()
             from memberIdentifier in Identifier.Text()
-            select new MemberRead(target, memberIdentifier);
+            select new MemberRead.RightPart(memberIdentifier);
 
         public static readonly Parser<string> ListSeparator =
             from seperator in Parse.Char(',').Once().Text().Token()
@@ -160,7 +159,7 @@ namespace de.mastersign.expressions.language
             from white in Parse.WhiteSpace.Many()
             select call.WithParameters(parameters);
 
-        public static readonly Parser<ExpressionElement> Term =
+        public static readonly Parser<ExpressionElement> TermFinal =
             from term in NullLiteral
                 .Or<ExpressionElement>(DecimalLiteral)
                 .Or<ExpressionElement>(FloatingPointLiteral)
@@ -171,6 +170,15 @@ namespace de.mastersign.expressions.language
                 .Or<ExpressionElement>(Variable)
                 .Or<ExpressionElement>(Group)
             select term;
+
+        public static readonly Parser<IEnumerable<IRightPart>> RightParts =
+            from rightParts in MemberReadRight.Many()
+            select rightParts;
+
+        public static readonly Parser<ExpressionElement> Term =
+            from termBase in TermFinal
+            from rightParts in RightParts
+            select termBase.TransformWithRightParts(rightParts);
 
         private static Parser<Operator> BuildOpParser(string text, Operator op)
         {
