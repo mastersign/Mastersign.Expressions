@@ -606,6 +606,26 @@ namespace de.mastersign.expressions
 
         #region Parsing, Compiling, Evaluating
 
+        private readonly Grammar grammar = new Grammar();
+
+        internal Grammar Grammar { get { return grammar; } }
+
+        /// <summary>
+        /// Gets and sets the language capabilities.
+        /// </summary>
+        public GrammarCapabilities Capabilities
+        {
+            get { return grammar.Capabilities; }
+            set
+            {
+                if (grammar.Capabilities == value) return;
+                grammar.Capabilities = value;
+                cachedParser = null;
+            }
+        }
+
+        private Parser<ExpressionElement> cachedParser;
+
         /// <summary>
         /// Parse the given expression string, build the abstract syntax tree 
         /// (represented by the returned <see cref="ExpressionElement"/>) and check
@@ -618,9 +638,13 @@ namespace de.mastersign.expressions
         public ExpressionElement ParseAndCheckExpression(string input)
         {
             ExpressionElement element;
+            if (cachedParser == null)
+            {
+                cachedParser = grammar.Expression.End();
+            }
             try
             {
-                element = Grammar.Expression.End().Parse(input);
+                element = cachedParser.Parse(input);
             }
             catch (Exception ex)
             {

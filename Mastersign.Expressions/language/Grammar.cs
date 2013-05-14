@@ -9,6 +9,8 @@ namespace de.mastersign.expressions.language
 {
     internal class Grammar
     {
+        #region static parts
+
         public static string[] Keywords = new[] { "true", "false", "and", "or", "xor", "null" };
 
         public static readonly Parser<NullLiteral> NullLiteral =
@@ -45,11 +47,12 @@ namespace de.mastersign.expressions.language
             select new IntegerLiteral(number);
 
         public static readonly Parser<string> FloatingPoint =
-            from fullnumber in (
-                from number in SignedNumber.Or(Parse.Number)
-                from decPnt in Parse.Char('.')
-                from decPlaces in Parse.Number
-                select number + '.' + decPlaces)
+            from fullnumber in
+                (
+                    from number in SignedNumber.Or(Parse.Number)
+                    from decPnt in Parse.Char('.')
+                    from decPlaces in Parse.Number
+                    select number + '.' + decPlaces)
             select fullnumber;
 
         public static readonly Parser<FloatingPointLiteral> FloatingPointLiteral =
@@ -96,13 +99,14 @@ namespace de.mastersign.expressions.language
         private static readonly Predicate<char> specialStringChar = c => c == '"' || c == '\\';
 
         private static readonly Parser<string> stringTokens =
-            from token in (
-                Parse.CharExcept(specialStringChar, "Quotes and the escape character.")
-                .Many().Text())
-                .Or(
-                from escape in Parse.Char('\\')
-                from escapeSymbol in Parse.AnyChar
-                select Unescape(escapeSymbol))
+            from token in
+                (
+                    Parse.CharExcept(specialStringChar, "Quotes and the escape character.")
+                    .Many().Text())
+                    .Or(
+                    from escape in Parse.Char('\\')
+                    from escapeSymbol in Parse.AnyChar
+                    select Unescape(escapeSymbol))
             select token;
 
         private static readonly Parser<StringLiteral> nonEmptyString =
@@ -125,12 +129,6 @@ namespace de.mastersign.expressions.language
             from name in Identifier
             select new Variable(name);
 
-        public static readonly Parser<Group> Group =
-            from lPar in Parse.Char('(')
-            from expr in Parse.Ref(() => Expression)
-            from rPar in Parse.Char(')')
-            select new Group(expr);
-
         public static readonly Parser<IRightPart> MemberReadRight =
             from period in Parse.Char('.').Token()
             from memberIdentifier in Identifier.Text()
@@ -140,45 +138,10 @@ namespace de.mastersign.expressions.language
             from seperator in Parse.Char(',').Once().Token().Text()
             select seperator;
 
-        public static readonly Parser<IEnumerable<ExpressionElement>> ExpressionList =
-            from chain in
-                Parse.ChainOperator(
-                    ListSeparator,
-                    from expression in Parse.Ref(() => Expression) select new Chain<ExpressionElement>(expression),
-                    (sep, c1, c2) => c2.Append(c1))
-            select chain.Reverse();
-
-        public static readonly Parser<FunctionCall> FunctionCall =
-            from call in (
-                from identifier in Identifier.Token()
-                select new FunctionCall(identifier))
-            from lPar in Parse.Char('(')
-            from parameters in ExpressionList
-                .Or(Parse.WhiteSpace.Many().Return(Chain<ExpressionElement>.Empty))
-            from rPar in Parse.Char(')')
-            from white in Parse.WhiteSpace.Many()
-            select call.WithParameters(parameters);
-
-        public static readonly Parser<ExpressionElement> TermFinal =
-            from term in NullLiteral
-                .Or<ExpressionElement>(DecimalLiteral)
-                .Or<ExpressionElement>(FloatingPointLiteral)
-                .Or<ExpressionElement>(IntegerLiteral)
-                .Or<ExpressionElement>(BooleanLiteral)
-                .Or<ExpressionElement>(StringLiteral)
-                .Or<ExpressionElement>(FunctionCall)
-                .Or<ExpressionElement>(Variable)
-                .Or<ExpressionElement>(Group)
-            select term;
 
         public static readonly Parser<IEnumerable<IRightPart>> RightParts =
             from rightParts in MemberReadRight.Many()
             select rightParts;
-
-        public static readonly Parser<ExpressionElement> Term =
-            from termBase in TermFinal
-            from rightParts in RightParts
-            select termBase.TransformWithRightParts(rightParts);
 
         private static Parser<Operator> BuildOpParser(string text, Operator op)
         {
@@ -222,15 +185,124 @@ namespace de.mastersign.expressions.language
                 .Or(RelGreaterOp)
             select op;
 
-        public static readonly Parser<ExpressionElement> Expression =
-            from expression in Parse.ChainOperator(AnyOperator, Term, OperationBuilder)
-            select expression;
-
         private static Operation OperationBuilder(Operator op, ExpressionElement l, ExpressionElement r)
         {
             return l is Operation
                 ? ((Operation)l).AppendOperand(op, r)
                 : new Operation(l, op, r);
+        }
+
+        #endregion
+
+        #region configuration
+
+        public GrammarCapabilities Capabilities { get; set; }
+
+        #endregion
+
+        public Grammar()
+        {
+            Capabilities = GrammarCapabilities.Basic;
+        }
+
+        public Parser<Group> Group
+        {
+            get
+            {
+                return from lPar in Parse.Char('(')
+                       from expr in Parse.Ref(() => Expression)
+                       from rPar in Parse.Char(')')
+                       select new Group(expr);
+            }
+        }
+
+        public Parser<IEnumerable<ExpressionElement>> ExpressionList
+        {
+            get
+            {
+                return
+                    from chain in
+                        Parse.ChainOperator(
+                            ListSeparator,
+                            from expression in Parse.Ref(() => Expression)
+                            select new Chain<ExpressionElement>(expression),
+                            (sep, c1, c2) => c2.Append(c1))
+                    select chain.Reverse();
+            }
+        }
+
+        public Parser<FunctionCall> FunctionCall
+        {
+            get
+            {
+                return
+                    from call in
+                        (
+                            from identifier in Identifier.Token()
+                            select new FunctionCall(identifier))
+                    from lPar in Parse.Char('(')
+                    from parameters in ExpressionList
+                        .Or(Parse.WhiteSpace.Many().Return(Chain<ExpressionElement>.Empty))
+                    from rPar in Parse.Char(')')
+                    from white in Parse.WhiteSpace.Many()
+                    select call.WithParameters(parameters);
+            }
+        }
+
+        public Parser<ExpressionElement> TermBase
+        {
+            get
+            {
+                return
+                    from term in NullLiteral
+                        .Or<ExpressionElement>(DecimalLiteral)
+                        .Or<ExpressionElement>(FloatingPointLiteral)
+                        .Or<ExpressionElement>(IntegerLiteral)
+                        .Or<ExpressionElement>(BooleanLiteral)
+                        .Or<ExpressionElement>(StringLiteral)
+                        .Or<ExpressionElement>(FunctionCall)
+                        .Or<ExpressionElement>(Variable)
+                        .Or<ExpressionElement>(Group)
+                    select term;
+            }
+        }
+
+        public Parser<ExpressionElement> TermWithMemberRead
+        {
+            get
+            {
+                return
+                    from termBase in TermBase
+                    from rightParts in RightParts
+                    select termBase.TransformWithRightParts(rightParts);
+            }
+        }
+
+
+        public Parser<ExpressionElement> Term
+        {
+            get
+            {
+                switch (Capabilities)
+                {
+                    case GrammarCapabilities.Basic:
+                        return TermBase;
+                    case GrammarCapabilities.MemberRead:
+                        return TermWithMemberRead;
+                    default:
+                        throw new NotSupportedException();
+                }
+            }
+        }
+
+        public Parser<ExpressionElement> Expression
+        {
+            get
+            {
+                return
+                    from expression in Parse.ChainOperator(AnyOperator, Term, OperationBuilder)
+                    select expression;
+            }
         }
     }
 }

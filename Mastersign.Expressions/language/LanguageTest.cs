@@ -49,7 +49,7 @@ namespace de.mastersign.expressions.language
 
         private static void ExpectResult(EvaluationContext context, string input, Type expectedType, object expectedValue)
         {
-            var res = Parse(Grammar.Expression, input);
+            var res = Parse(context.Grammar.Expression, input);
             var sb = new StringBuilder();
             var semanticSuccess = res.CheckSemantic(context, sb);
             var resType = semanticSuccess ? res.GetValueType(context) : null;
@@ -144,10 +144,15 @@ namespace de.mastersign.expressions.language
 
         private static void ExpectError(EvaluationContext context, string input)
         {
-            var res = Parse(Grammar.Expression, input);
+            var res = Parse(context.Grammar.Expression, input);
             var sb = new StringBuilder();
             Assert.IsFalse(res.CheckSemantic(context, sb));
             Assert.IsTrue(sb.Length > 0);
+        }
+
+        public static T If<T>(bool condition, T trueCase, T falseCase)
+        {
+            return condition ? trueCase : falseCase;
         }
 
         #endregion
@@ -336,27 +341,39 @@ namespace de.mastersign.expressions.language
         [Test]
         public void GroupTest()
         {
-            ExpectReject(Grammar.Group,
+
+            ExpectReject(new Grammar().Group,
                 "", " ", "(", "()", "( )", ")", "12");
 
-            ExpectAccept(Grammar.Group,
+            ExpectAccept(new Grammar().Group,
                 "(1)", "(1+2)", "(((1)))");
 
             var context = new EvaluationContext();
-
-            Assert.AreEqual(1, Parse(Grammar.Group, "((1))").GetValue(context));
+            Assert.AreEqual(1, Parse(context.Grammar.Group, "((1))").GetValue(context));
         }
 
         [Test]
-        public void TermTest()
+        public void TermBaseTest()
         {
-            ExpectReject(Grammar.Term,
+            var grammar = new Grammar();
+
+            ExpectReject(grammar.TermBase,
                 "", " ", "1 + 2");
 
-            ExpectAccept(Grammar.Term,
+            ExpectAccept(grammar.TermBase,
                 "1", "(1+2)", "(true and false)");
+        }
 
-            ExpectAccept(Grammar.Term,
+        [Test]
+        public void TermWithMemberReadTest()
+        {
+            var grammar = new Grammar();
+
+            ExpectReject(grammar.TermWithMemberRead,
+                "", " ", "1 + 2", ".", ".a", "().a");
+
+            ExpectAccept(grammar.TermWithMemberRead,
+                "1", "(1+2)", "(true and false)",
                 "a.b.c", "a().b", "(a + b).c");
         }
 
@@ -415,13 +432,13 @@ namespace de.mastersign.expressions.language
             context.SetVariable("x", 1, true);
             context.SetVariable("y", 1, false);
 
-            var astX = Grammar.Expression.End().Parse("x");
+            var astX = context.Grammar.Expression.End().Parse("x");
             Assert.IsTrue(astX.CheckSemantic(context, new StringBuilder()));
             var exprX = astX.GetExpression(context);
             var lambdaX = Expression.Lambda<Func<int>>(exprX);
             var x = lambdaX.Compile();
 
-            var astY = Grammar.Expression.End().Parse("y");
+            var astY = context.Grammar.Expression.End().Parse("y");
             Assert.IsTrue(astY.CheckSemantic(context, new StringBuilder()));
             var exprY = astY.GetExpression(context);
             var lambdaY = Expression.Lambda<Func<int>>(exprY);
@@ -579,18 +596,18 @@ namespace de.mastersign.expressions.language
         [Test]
         public void ExpressionTest()
         {
-            ExpectReject(Grammar.Expression,
-                "", " ", "1+", "--4", "(", "(1", "2(3)");
-
-            ExpectAccept(Grammar.Expression,
-                "1+1", "1+2+3", "2*(3+4)", "a + 4", "xyz and abc");
-
             var context = new EvaluationContext();
             context.SetVariable("quest", 42);
             context.SetVariable("pi", Math.PI);
             context.SetVariable("hello", "Hello");
             context.SetVariable("yes", true);
             context.SetVariable("no", false);
+
+            ExpectReject(context.Grammar.Expression,
+                "", " ", "1+", "--4", "(", "(1", "2(3)");
+
+            ExpectAccept(context.Grammar.Expression,
+                "1+1", "1+2+3", "2*(3+4)", "a + 4", "xyz and abc");
 
             ExpectError("true + 1");
             ExpectError("true = 2");
@@ -604,6 +621,9 @@ namespace de.mastersign.expressions.language
 
             ExpectResult(context, "(yes and no) <> true", typeof(bool), true);
             ExpectResult(context, "hello & quest", typeof(string), "Hello42");
+
+            context.Capabilities = GrammarCapabilities.MemberRead;
+
             ExpectResult(context, "(\"abc\" & \"def\").Length", typeof(int), 6);
         }
 
@@ -640,7 +660,7 @@ namespace de.mastersign.expressions.language
         [Test]
         public void ExpressionListTest()
         {
-            ExpectAccept(Grammar.ExpressionList,
+            ExpectAccept(new Grammar().ExpressionList,
                 "1", " 1 ", " 1 + 2 ", "1,2", "1, 2", " 1 + 2 , 3 + 4 ",
                 "a", "a, b", "a, b, c",
                 " \"hello\", \"world\" ");
@@ -649,10 +669,10 @@ namespace de.mastersign.expressions.language
         [Test]
         public void FunctionCallTest()
         {
-            ExpectReject(Grammar.FunctionCall,
+            ExpectReject(new Grammar().FunctionCall,
                 "(", "()", "()a", "(a)", "a(", "a)");
 
-            ExpectAccept(Grammar.FunctionCall,
+            ExpectAccept(new Grammar().FunctionCall,
                 "a()", "a ()", "a( )", "a(b)", " a (b) ", " a ( b ) ", "a(b, c)", "sinus(ld(a))");
 
             var context = new EvaluationContext();
@@ -699,6 +719,7 @@ namespace de.mastersign.expressions.language
             context.SetVariable("intA", 42, true);
             context.SetVariable("ex", new MemberReadExample(str), true);
             context.AddFunction("f", (Func<string>)(() => str));
+            context.Capabilities = GrammarCapabilities.MemberRead;
 
             ExpectResult(context, "strA.Length", typeof(int), str.Length);
             ExpectResult(context, "strB.Length", typeof(int), str.Length);
@@ -717,10 +738,27 @@ namespace de.mastersign.expressions.language
             ExpectError(context, "ex.PubWoP");
         }
 
-        public static T If<T>(bool condition, T trueCase, T falseCase)
+        [Test]
+        public void GrammarCapabilityMemberReadTest()
         {
-            return condition ? trueCase : falseCase;
+            var context = new EvaluationContext();
+            Assert.AreEqual(context.Capabilities, GrammarCapabilities.Basic);
+
+            ExpectReject(context.Grammar.Expression.End(), "a.b");
+
+            context.Capabilities = GrammarCapabilities.MemberRead;
+
+            ExpectAccept(context.Grammar.Expression.End(), "a.b");
         }
+
+        [Test]
+        public void LoadPackagesTest()
+        {
+            var context = new EvaluationContext();
+            context.LoadAllPackages();
+        }
+
+        #region Test Types
 
         private class WrappedString
         {
@@ -770,14 +808,9 @@ namespace de.mastersign.expressions.language
             public string PubWoP { private get; set; }
 
             private string PrvP { get; set; }
-
         }
 
-        [Test]
-        public void LoadPackagesTest()
-        {
-            var context = new EvaluationContext();
-            context.LoadAllPackages();
-        }
+        #endregion
+
     }
 }
