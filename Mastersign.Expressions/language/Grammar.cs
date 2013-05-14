@@ -137,7 +137,7 @@ namespace de.mastersign.expressions.language
             select new MemberRead.RightPart(memberIdentifier);
 
         public static readonly Parser<string> ListSeparator =
-            from seperator in Parse.Char(',').Once().Text().Token()
+            from seperator in Parse.Char(',').Once().Token().Text()
             select seperator;
 
         public static readonly Parser<IEnumerable<ExpressionElement>> ExpressionList =
