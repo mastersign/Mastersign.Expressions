@@ -613,7 +613,7 @@ namespace de.mastersign.expressions
         /// <summary>
         /// Gets and sets the language capabilities.
         /// </summary>
-        public GrammarCapabilities Capabilities
+        public LanguageCapabilities Capabilities
         {
             get { return grammar.Capabilities; }
             set

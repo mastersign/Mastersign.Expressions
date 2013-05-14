@@ -622,7 +622,7 @@ namespace de.mastersign.expressions.language
             ExpectResult(context, "(yes and no) <> true", typeof(bool), true);
             ExpectResult(context, "hello & quest", typeof(string), "Hello42");
 
-            context.Capabilities = GrammarCapabilities.MemberRead;
+            context.Capabilities = LanguageCapabilities.MemberRead;
 
             ExpectResult(context, "(\"abc\" & \"def\").Length", typeof(int), 6);
         }
@@ -719,7 +719,7 @@ namespace de.mastersign.expressions.language
             context.SetVariable("intA", 42, true);
             context.SetVariable("ex", new MemberReadExample(str), true);
             context.AddFunction("f", (Func<string>)(() => str));
-            context.Capabilities = GrammarCapabilities.MemberRead;
+            context.Capabilities = LanguageCapabilities.MemberRead;
 
             ExpectResult(context, "strA.Length", typeof(int), str.Length);
             ExpectResult(context, "strB.Length", typeof(int), str.Length);
@@ -742,11 +742,11 @@ namespace de.mastersign.expressions.language
         public void GrammarCapabilityMemberReadTest()
         {
             var context = new EvaluationContext();
-            Assert.AreEqual(context.Capabilities, GrammarCapabilities.Basic);
+            Assert.AreEqual(context.Capabilities, LanguageCapabilities.Basic);
 
             ExpectReject(context.Grammar.Expression.End(), "a.b");
 
-            context.Capabilities = GrammarCapabilities.MemberRead;
+            context.Capabilities = LanguageCapabilities.MemberRead;
 
             ExpectAccept(context.Grammar.Expression.End(), "a.b");
         }

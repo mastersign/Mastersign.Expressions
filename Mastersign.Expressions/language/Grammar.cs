@@ -196,13 +196,13 @@ namespace de.mastersign.expressions.language
 
         #region configuration
 
-        public GrammarCapabilities Capabilities { get; set; }
+        public LanguageCapabilities Capabilities { get; set; }
 
         #endregion
 
         public Grammar()
         {
-            Capabilities = GrammarCapabilities.Basic;
+            Capabilities = LanguageCapabilities.Basic;
         }
 
         public Parser<Group> Group
@@ -285,9 +285,9 @@ namespace de.mastersign.expressions.language
             {
                 switch (Capabilities)
                 {
-                    case GrammarCapabilities.Basic:
+                    case LanguageCapabilities.Basic:
                         return TermBase;
-                    case GrammarCapabilities.MemberRead:
+                    case LanguageCapabilities.MemberRead:
                         return TermWithMemberRead;
                     default:
                         throw new NotSupportedException();
