@@ -680,23 +680,21 @@ namespace de.mastersign.expressions.language
         [Test]
         public void MemberReadTest()
         {
-            ExpectReject(Grammar.MemberRead, 
-                "strA:Length", "strA-Length", "strA Length",
-                "strA.test()", "strA.123", 
-                "strA.", "strA .", "strA .", "strA . ",
-                "strA.()", "a + b.c", "a.b + c");
+            ExpectReject(Grammar.MemberReadRight, 
+                ":Length", "-Length", "Length",
+                ".test()", ".123", 
+                ".", " .", " . ", ".()");
 
-            ExpectAccept(Grammar.MemberRead,
-                "a.b", "a .b", "a. b", "a . b",
-                "a._b", "(a + b).c", "a().b",
-                "a.b.c", "a().b.c", "a.b().c");
+            ExpectAccept(Grammar.MemberReadRight,
+                ".b", " .b", ". b", " . b", "._b");
 
             var context = new EvaluationContext();
-            var str = "Test String";
+            const string str = "Test String";
             context.SetVariable("strA", str);
             context.SetVariable("strB", str, true);
             context.SetVariable("intA", 42, true);
-            context.SetVariable("ex", new MemberReadExample(str), false);
+            context.SetVariable("ex", new MemberReadExample(str), true);
+            context.AddFunction("f", (Func<string>)(() => str));
 
             ExpectResult(context, "strA.Length", typeof(int), str.Length);
             ExpectResult(context, "strB.Length", typeof(int), str.Length);
@@ -705,9 +703,11 @@ namespace de.mastersign.expressions.language
             ExpectResult(context, "ex.PubP", typeof(string), str);
             ExpectResult(context, "ex.PubRoP", typeof(string), str);
 
+            ExpectResult(context, "f().Length", typeof(int), str.Length);
+            ExpectResult(context, "ex.PubF.Length", typeof(int), str.Length);
+
             ExpectError(context, "strA.ToString");
             ExpectError(context, "ex.NotExist");
-            ExpectError(context, "ex.PubF()");
             ExpectError(context, "ex.pubf");
             ExpectError(context, "ex.prvF");
             ExpectError(context, "ex.PubWoP");
