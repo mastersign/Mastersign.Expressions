@@ -677,6 +677,42 @@ namespace de.mastersign.expressions.language
             ExpectError(context, "sin(pi, 2)"); // too many parameter
         }
 
+        [Test]
+        public void MemberReadTest()
+        {
+            ExpectReject(Grammar.MemberReadRight, 
+                ":Length", "-Length", "Length",
+                ".test()", ".123", 
+                ".", " .", " . ", ".()");
+
+            ExpectAccept(Grammar.MemberReadRight,
+                ".b", " .b", ". b", " . b", "._b");
+
+            var context = new EvaluationContext();
+            const string str = "Test String";
+            context.SetVariable("strA", str);
+            context.SetVariable("strB", str, true);
+            context.SetVariable("intA", 42, true);
+            context.SetVariable("ex", new MemberReadExample(str), true);
+            context.AddFunction("f", (Func<string>)(() => str));
+
+            ExpectResult(context, "strA.Length", typeof(int), str.Length);
+            ExpectResult(context, "strB.Length", typeof(int), str.Length);
+            ExpectResult(context, "ex.PubF", typeof(string), str);
+            ExpectResult(context, "ex.PubC", typeof(string), str);
+            ExpectResult(context, "ex.PubP", typeof(string), str);
+            ExpectResult(context, "ex.PubRoP", typeof(string), str);
+
+            ExpectResult(context, "f().Length", typeof(int), str.Length);
+            ExpectResult(context, "ex.PubF.Length", typeof(int), str.Length);
+
+            ExpectError(context, "strA.ToString");
+            ExpectError(context, "ex.NotExist");
+            ExpectError(context, "ex.pubf");
+            ExpectError(context, "ex.prvF");
+            ExpectError(context, "ex.PubWoP");
+        }
+
         public static T If<T>(bool condition, T trueCase, T falseCase)
         {
             return condition ? trueCase : falseCase;
@@ -705,6 +741,32 @@ namespace de.mastersign.expressions.language
             {
                 return new WrappedString(string.Format("wrapped({0})", value));
             }
+        }
+
+        private class MemberReadExample
+        {
+            public MemberReadExample(string value)
+            {
+                PubF = value;
+                PubC = value;
+                prvF = value;
+                PubP = value;
+                PubRoP = value;
+                PubWoP = value;
+                PrvP = value;
+            }
+
+            public string PubF;
+            public readonly string PubC;
+
+            private string prvF;
+
+            public string PubP { get; set; }
+            public string PubRoP { get; private set; }
+            public string PubWoP { private get; set; }
+
+            private string PrvP { get; set; }
+
         }
 
         [Test]

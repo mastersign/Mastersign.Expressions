@@ -64,6 +64,17 @@ namespace de.mastersign.expressions.language
         /// <param name="context">The evaluation context.</param>
         /// <returns>An <see cref="Expression"/> object as root of a LINQ-AST.</returns>
         public abstract Expression GetExpression(EvaluationContext context);
+
+        /// <summary>
+        /// Applies a number of <see cref="IRightPart"/>s to this <see cref="ExpressionElement"/>
+        /// and returns the resulting element.
+        /// </summary>
+        /// <param name="rightParts">A list of right parts.</param>
+        /// <returns>The resulting <see cref="ExpressionElement"/>.</returns>
+        internal ExpressionElement TransformWithRightParts(IEnumerable<IRightPart> rightParts)
+        {
+            return rightParts.Aggregate(this, (current, part) => part.BuildExpressionElement(current));
+        }
     }
 
     /// <summary>
