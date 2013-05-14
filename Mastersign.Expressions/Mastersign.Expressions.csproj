@@ -66,6 +66,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EvaluationContextTest.cs" />
+    <Compile Include="language\IRightPart.cs" />
     <Compile Include="language\MemberRead.cs" />
     <Compile Include="minimods\de.mastersign.minimods.Chain.cs" />
     <Compile Include="EvaluationContext.cs" />
