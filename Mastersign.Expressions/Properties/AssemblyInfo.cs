@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("Mastersign.Expressions")]
 [assembly: AssemblyDescription("A simple expression language.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Tobias Kiertscher")]
 [assembly: AssemblyProduct("Mastersign.Expressions")]
 [assembly: AssemblyCopyright("Copyright © Tobias Kiertscher 2013")]
 [assembly: AssemblyTrademark("")]

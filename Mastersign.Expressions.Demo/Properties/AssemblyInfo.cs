@@ -6,9 +6,9 @@ using System.Runtime.InteropServices;
 // Attribute gesteuert. Ändern Sie diese Attributwerte, um die Informationen zu ändern,
 // die mit einer Assembly verknüpft sind.
 [assembly: AssemblyTitle("Mastersign.Expressions Demo")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Example application for the Mastersign.Expressions library.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Tobias Kiertscher")]
 [assembly: AssemblyProduct("Mastersign.Expressions")]
 [assembly: AssemblyCopyright("Copyright © Tobias Kiertscher 2013")]
 [assembly: AssemblyTrademark("")]
