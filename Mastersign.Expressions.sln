@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mastersign.Expressions", "Mastersign.Expressions\Mastersign.Expressions.csproj", "{6F3DBCB5-C2B1-4E6E-BFB1-3D74CA67DB7A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mastersign.Expressions.Demo", "Mastersign.Expressions.Demo\Mastersign.Expressions.Demo.csproj", "{B1AADC1F-811A-4ADC-8D33-481A4F5A6A45}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,6 +15,10 @@ Global
 		{6F3DBCB5-C2B1-4E6E-BFB1-3D74CA67DB7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6F3DBCB5-C2B1-4E6E-BFB1-3D74CA67DB7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6F3DBCB5-C2B1-4E6E-BFB1-3D74CA67DB7A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B1AADC1F-811A-4ADC-8D33-481A4F5A6A45}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1AADC1F-811A-4ADC-8D33-481A4F5A6A45}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1AADC1F-811A-4ADC-8D33-481A4F5A6A45}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1AADC1F-811A-4ADC-8D33-481A4F5A6A45}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

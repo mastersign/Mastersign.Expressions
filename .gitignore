@@ -2,3 +2,5 @@
 /Mastersign.Expressions/obj
 *.VisualState.xml
 /releases
+/Mastersign.Expressions.Demo/bin
+/Mastersign.Expressions.Demo/obj
