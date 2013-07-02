@@ -15,6 +15,7 @@ The syntax of Mastersign.Expressions supports literals, symbols (variable, const
 * [Grouping|#grouping]
 * [Variables, Constants, Parameters|#variables]
 * [Function Calls|#functions]
+** [Integrated Functions|#integrated_functions]
 * [Member Read|#member-read]
 
 !! {anchor:literals}Literals
@@ -131,6 +132,21 @@ Functions are registered in the evaluation context and are referenced by a label
 If a function named _sin_ with one parameter of the type _System.Double_ for computing the sine of a numerical value is registered in the evaluation context, the expression *sin(3.1514926535)* evaluates to approximately _0.0_. The call to a function which multiplies strings could look like *repeat("abc", 3)* and would result in _"abcabcabc"_.
 
 Under one name, more than one function can be registered if the parameterlists are distinctive. This is called overloading. When calling an overloaded function within an expression, the best fitting alternative is used.
+
+!!! {anchor:integrated_functions}Integrated Functions
+There is currently one function integrated into the syntax of Mastersign.Expressions.
+
+!!!! if(condition, then, else)
+
+_since version: 0.4.2_
+
+Conditional to select one of two values. The first argument must be an expression that yields a boolean value (_true_ or _false_),
+second and third argument can be arbitrary expressions, but must result in values of the same type (e.g. both integer numbers, or both strings).
+If the first argument is evaluated to _true_, the if expression results in the value of the
+second argument. Otherwise, it results in the value of the third argument.
+
+* Syntax: if(_condition_, _then-expr_, _else-expr_)
+* Example: *if(a > b, 10, 1)*
 
 !! {anchor:member-read}Member Read
 
