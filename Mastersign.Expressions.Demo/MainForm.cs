@@ -6,6 +6,7 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace de.mastersign.expressions.demo
@@ -125,17 +126,16 @@ namespace de.mastersign.expressions.demo
 
             UpdateContext();
 
-            var line = bmpData.Scan0;
-            for (var y = 0; y < h; y++)
-            {
-                for (var x = 0; x < w; x++)
+            Parallel.For(0, h, y =>
                 {
-                    var v = f(x, y, (double)x / w - 0.5, (double)y / h - 0.5);
-                    Marshal.WriteByte(line + x,
-                        (byte)(Math.Min(1.0, Math.Max(0.0, v)) * 255.0));
-                }
-                line += bmpData.Stride;
-            }
+                    var line = bmpData.Scan0 + bmpData.Stride * y;
+                    for (var x = 0; x < w; x++)
+                    {
+                        var v = f(x, y, (double)x / w - 0.5, (double)y / h - 0.5);
+                        Marshal.WriteByte(line + x,
+                                          (byte)(Math.Min(1.0, Math.Max(0.0, v)) * 255.0));
+                    }
+                });
             canvas.UnlockBits(bmpData);
             display.Picture = canvas;
         }
