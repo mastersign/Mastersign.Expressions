@@ -8,6 +8,17 @@ namespace de.mastersign.expressions.language
 {
     internal class FunctionCall : ExpressionNode
     {
+        public static FunctionCall CreateInstance(string identifier)
+        {
+            switch (identifier)
+            {
+                case Conditional.FUNCTION_NAME:
+                    return new Conditional();
+                default:
+                    return new FunctionCall(identifier);
+            }
+        }
+
         public string Identifier { get; private set; }
 
         public FunctionCall(string identifier)
@@ -18,17 +29,17 @@ namespace de.mastersign.expressions.language
 
         public FunctionCall AddParameter(ExpressionElement parameter)
         {
-            parameters.Add(parameter);
+            Parameters.Add(parameter);
             return this;
         }
 
         public FunctionCall WithParameters(IEnumerable<ExpressionElement> parameter)
         {
-            parameters.AddRange(parameter);
+            Parameters.AddRange(parameter);
             return this;
         }
 
-        private readonly List<ExpressionElement> parameters = new List<ExpressionElement>();
+        protected readonly List<ExpressionElement> Parameters = new List<ExpressionElement>();
 
         public override string Source
         {
@@ -37,7 +48,7 @@ namespace de.mastersign.expressions.language
                 var sb = new StringBuilder();
                 sb.Append(Identifier);
                 sb.Append("(");
-                sb.Append(string.Join(", ", parameters.Select(p => p.Source)));
+                sb.Append(string.Join(", ", Parameters.Select(p => p.Source)));
                 sb.Append(")");
                 return sb.ToString();
             }
@@ -55,14 +66,13 @@ namespace de.mastersign.expressions.language
                 res = false;
             }
 
-            foreach (var p in parameters)
+            foreach (var p in Parameters)
             {
                 if (!p.CheckSemantic(context, errMessages)) res = false;
             }
-
             if (!res) return false;
 
-            var types = (from p in parameters select p.GetValueType(context)).ToArray();
+            var types = (from p in Parameters select p.GetValueType(context)).ToArray();
             var function = functionGroup.FindMatch(types);
             if (function == null)
             {
@@ -79,7 +89,7 @@ namespace de.mastersign.expressions.language
         {
             var functionGroup = context.GetFunctionGroup(Identifier);
             if (functionGroup == null) throw new InvalidOperationException("The function does not exist.");
-            var types = (from p in parameters select p.GetValueType(context)).ToArray();
+            var types = (from p in Parameters select p.GetValueType(context)).ToArray();
             var function = functionGroup.FindMatch(types);
             if (function == null) throw new InvalidOperationException("The function does not match the parameters.");
             return function;
@@ -92,7 +102,7 @@ namespace de.mastersign.expressions.language
 
         public override object GetValue(EvaluationContext context, object[] parameterValues)
         {
-            var funcParameterValues = parameters.Select(p => p.GetValue(context, parameterValues)).ToArray();
+            var funcParameterValues = Parameters.Select(p => p.GetValue(context, parameterValues)).ToArray();
             var function = FindHandle(context);
             return function.Call(funcParameterValues);
         }
@@ -102,7 +112,7 @@ namespace de.mastersign.expressions.language
             var function = FindHandle(context);
             if (function == null) throw new InvalidOperationException("Function not found.");
             var pi = function.Method.GetParameters();
-            var p = parameters.Select(e => e.GetExpression(context)).ToArray();
+            var p = Parameters.Select(e => e.GetExpression(context)).ToArray();
             for (var i = 0; i < p.Length; i++)
             {
                 if (p[i].Type == pi[i].ParameterType) continue;
@@ -118,7 +128,7 @@ namespace de.mastersign.expressions.language
 
         public override IEnumerator<ExpressionElement> GetEnumerator()
         {
-            return parameters.GetEnumerator();
+            return Parameters.GetEnumerator();
         }
     }
 }

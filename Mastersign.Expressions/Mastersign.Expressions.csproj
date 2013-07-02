@@ -67,6 +67,7 @@
   <ItemGroup>
     <Compile Include="EvaluationContextTest.cs" />
     <Compile Include="LanguageCapabilities.cs" />
+    <Compile Include="language\Conditional.cs" />
     <Compile Include="language\IRightPart.cs" />
     <Compile Include="language\MemberRead.cs" />
     <Compile Include="minimods\de.mastersign.minimods.Chain.cs" />

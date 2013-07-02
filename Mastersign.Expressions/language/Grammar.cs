@@ -239,7 +239,7 @@ namespace de.mastersign.expressions.language
                     from call in
                         (
                             from identifier in Identifier.Token()
-                            select new FunctionCall(identifier))
+                            select language.FunctionCall.CreateInstance(identifier))
                     from lPar in Parse.Char('(')
                     from parameters in ExpressionList
                         .Or(Parse.WhiteSpace.Many().Return(Chain<ExpressionElement>.Empty))

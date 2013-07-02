@@ -670,7 +670,7 @@ namespace de.mastersign.expressions.language
         public void FunctionCallTest()
         {
             ExpectReject(new Grammar().FunctionCall,
-                "(", "()", "()a", "(a)", "a(", "a)");
+                "(", "()", "()a", "(a)", "a(", "a)", "a(1 + )");
 
             ExpectAccept(new Grammar().FunctionCall,
                 "a()", "a ()", "a( )", "a(b)", " a (b) ", " a ( b ) ", "a(b, c)", "sinus(ld(a))");
@@ -699,6 +699,35 @@ namespace de.mastersign.expressions.language
             ExpectError(context, "sin(true)"); // wrong parameter type
             ExpectError(context, "sin()"); // too few parameter
             ExpectError(context, "sin(pi, 2)"); // too many parameter
+        }
+
+        [Test]
+        public void ConditionalTest()
+        {
+            var context = new EvaluationContext();
+            context.SetVariable("a", 42);
+            context.SetVariable("b", 12);
+            context.SetVariable("x", "abc");
+            context.SetVariable("y", "xyz");
+
+            ExpectResult(context, Conditional.FUNCTION_NAME + "(true, a, b)", typeof(int), 42);
+            ExpectResult(context, Conditional.FUNCTION_NAME + "(false, a, b)", typeof(int), 12);
+
+            ExpectResult(context, Conditional.FUNCTION_NAME + "(a > b, false, true)", typeof(bool), false);
+            ExpectResult(context, Conditional.FUNCTION_NAME + "(100 = a, x, y)", typeof(string), "xyz");
+
+            // wrong number of arguments
+            ExpectError(context, Conditional.FUNCTION_NAME + "()");
+            ExpectError(context, Conditional.FUNCTION_NAME + "(true, 1)");
+            ExpectError(context, Conditional.FUNCTION_NAME + "(true, 1, 2, 3)");
+            ExpectError(context, Conditional.FUNCTION_NAME + "(true, 1, 2, 3, 4)");
+
+            ExpectError(context, Conditional.FUNCTION_NAME + "(100, a, b)"); // wrong type for condition
+            ExpectError(context, Conditional.FUNCTION_NAME + "(true, a, x)"); // different types for true and false part
+
+            // wrapped semantic errors
+            ExpectError(context, Conditional.FUNCTION_NAME + "(not_exist(), a, b)"); // invalid function call as parameter
+            ExpectError(context, Conditional.FUNCTION_NAME + "(true, not_exist(), x)"); // invalid function call as parameter
         }
 
         [Test]
