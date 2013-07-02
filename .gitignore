@@ -1,6 +1,6 @@
 /Mastersign.Expressions/bin
 /Mastersign.Expressions/obj
 *.VisualState.xml
-/releases
+/releases/*
 /Mastersign.Expressions.Demo/bin
 /Mastersign.Expressions.Demo/obj
