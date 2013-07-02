@@ -16,6 +16,7 @@ namespace de.mastersign.expressions.demo
         public Display()
         {
             InitializeComponent();
+            DoubleBuffered = true;
         }
 
         public Bitmap Picture

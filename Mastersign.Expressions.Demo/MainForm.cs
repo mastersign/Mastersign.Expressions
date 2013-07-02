@@ -123,24 +123,36 @@ namespace de.mastersign.expressions.demo
             var w = backbuffer.Width;
             var h = backbuffer.Height;
 
-
             var bmpData = backbuffer.LockBits(
                 new Rectangle(0, 0, w, h),
                 ImageLockMode.WriteOnly, PixelFormat.Format8bppIndexed);
 
+            Action<int> lineProcessor =
+                y =>
+                    {
+                        var line = bmpData.Scan0 + bmpData.Stride*y;
+                        for (var x = 0; x < w; x++)
+                        {
+                            var v = f(x, y, (double) x/w - 0.5, (double) y/h - 0.5);
+                            Marshal.WriteByte(
+                                line + x,
+                                (byte) (Math.Min(1.0, Math.Max(0.0, v))*255.0));
+                        }
+                    };
+
             UpdateContext();
 
-            Parallel.For(0, h, y =>
+            if (chkParallel.Checked)
+            {
+                Parallel.For(0, h, lineProcessor);
+            }
+            else
+            {
+                for (var y = 0; y < h; y++)
                 {
-                    var line = bmpData.Scan0 + bmpData.Stride * y;
-                    for (var x = 0; x < w; x++)
-                    {
-                        var v = f(x, y, (double)x / w - 0.5, (double)y / h - 0.5);
-                        Marshal.WriteByte(
-                            line + x,
-                            (byte)(Math.Min(1.0, Math.Max(0.0, v)) * 255.0));
-                    }
-                });
+                    lineProcessor(y);
+                }
+            }
 
             backbuffer.UnlockBits(bmpData);
 
