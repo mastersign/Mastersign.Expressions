@@ -39,8 +39,8 @@ namespace de.mastersign.expressions.demo
             this.lblMessage = new System.Windows.Forms.Label();
             this.timer = new System.Windows.Forms.Timer(this.components);
             this.cmbExpr = new System.Windows.Forms.ComboBox();
-            this.display = new de.mastersign.expressions.demo.Display();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.display = new de.mastersign.expressions.demo.Display();
             this.SuspendLayout();
             // 
             // lblHints
@@ -48,9 +48,9 @@ namespace de.mastersign.expressions.demo
             this.lblHints.AutoSize = true;
             this.lblHints.Location = new System.Drawing.Point(12, 9);
             this.lblHints.Name = "lblHints";
-            this.lblHints.Size = new System.Drawing.Size(102, 13);
+            this.lblHints.Size = new System.Drawing.Size(151, 13);
             this.lblHints.TabIndex = 1;
-            this.lblHints.Text = "W, H, X, Y, x, y, T, t";
+            this.lblHints.Text = "Variables: W, H, X, Y, x, y, T, t";
             this.toolTip.SetToolTip(this.lblHints, resources.GetString("lblHints.ToolTip"));
             // 
             // lblMessage
@@ -59,7 +59,7 @@ namespace de.mastersign.expressions.demo
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lblMessage.Location = new System.Drawing.Point(12, 51);
             this.lblMessage.Name = "lblMessage";
-            this.lblMessage.Size = new System.Drawing.Size(507, 42);
+            this.lblMessage.Size = new System.Drawing.Size(512, 42);
             this.lblMessage.TabIndex = 2;
             // 
             // timer
@@ -77,10 +77,14 @@ namespace de.mastersign.expressions.demo
             "sin((x + t) * pi * 3) * sin((y - t) * pi * 3) * 0.5 + 0.5",
             "cos((sqrt(x^2 + y^2) + t) * pi * 4) * 0.5 + 0.5",
             "sin(t * pi * 10) * 0.5 + 0.5",
-            "rand()"});
+            "rand()",
+            "if(X = 100 or Y = 100, 1, 0)",
+            "if(sqrt(x^2 + y^2) > 0.3, 1, 0)",
+            "if(mod(X + Y + (T / 50), 50) = 0 or mod(X - Y - (T / 50), 50) = 0, mod(T/500f, 1f" +
+                "), 1-mod(T/2000f,1f))"});
             this.cmbExpr.Location = new System.Drawing.Point(12, 27);
             this.cmbExpr.Name = "cmbExpr";
-            this.cmbExpr.Size = new System.Drawing.Size(508, 21);
+            this.cmbExpr.Size = new System.Drawing.Size(513, 21);
             this.cmbExpr.TabIndex = 4;
             this.cmbExpr.TextChanged += new System.EventHandler(this.cmbExpr_TextChanged);
             // 
@@ -93,7 +97,7 @@ namespace de.mastersign.expressions.demo
             this.display.Location = new System.Drawing.Point(12, 96);
             this.display.Name = "display";
             this.display.Picture = null;
-            this.display.Size = new System.Drawing.Size(507, 366);
+            this.display.Size = new System.Drawing.Size(512, 512);
             this.display.TabIndex = 5;
             this.display.Resize += new System.EventHandler(this.display_SizeChanged);
             // 
@@ -101,7 +105,7 @@ namespace de.mastersign.expressions.demo
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(532, 474);
+            this.ClientSize = new System.Drawing.Size(537, 620);
             this.Controls.Add(this.display);
             this.Controls.Add(this.cmbExpr);
             this.Controls.Add(this.lblMessage);
