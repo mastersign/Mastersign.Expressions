@@ -5,6 +5,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System;
 using System.Text.RegularExpressions;
+using System.Threading;
 using Sprache;
 using de.mastersign.expressions.language;
 
@@ -292,10 +293,29 @@ namespace de.mastersign.expressions
             AddFunction("not", new FunctionHandle((Func<bool, bool>)(v => !v)));
         }
 
+        //private static readonly Random rand = new Random();
+
         /// <summary>
-        /// The static random class for the 'rand' function in the math package.
+        /// The static dictionary for random instances: a random instances per thread.
         /// </summary>
-        private static readonly Random rand = new Random(DateTime.Now.Millisecond);
+        private static readonly Dictionary<Thread, Random> randoms = new Dictionary<Thread, Random>();
+
+        /// <summary>
+        /// Returns the thread specific random object.
+        /// </summary>
+        private static Random Random
+        {
+            get
+            {
+                Random res;
+                if (!randoms.TryGetValue(Thread.CurrentThread, out res))
+                {
+                    res = new Random();
+                    randoms.Add(Thread.CurrentThread, res);
+                }
+                return res;
+            }
+        }
 
         /// <summary>
         /// Load the package with functions and constants for simple math.
@@ -357,7 +377,7 @@ namespace de.mastersign.expressions
             AddFunction("log10", typeof(Math).GetMethod("Log10", new[] { typeof(double) }));
             AddFunction("sqrt", typeof(Math).GetMethod("Sqrt", new[] { typeof(double) }));
 
-            AddFunction("rand", (Func<double>)(() => rand.NextDouble()));
+            AddFunction("rand", (Func<double>)(() => Random.NextDouble()));
 
             AddFunction("min", typeof(Math).GetMethod("Min", new[] { typeof(SByte), typeof(SByte) }));
             AddFunction("min", typeof(Math).GetMethod("Min", new[] { typeof(Byte), typeof(Byte) }));
