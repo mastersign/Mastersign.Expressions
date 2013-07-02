@@ -6,6 +6,7 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -17,14 +18,14 @@ namespace de.mastersign.expressions.demo
         private Func<int, int, double, double, double> f;
 
         private ColorPalette bwPalette;
-        private Bitmap canvas;
+        private Bitmap frontbuffer, backbuffer;
 
         private readonly Stopwatch watch = new Stopwatch();
 
         public MainForm()
         {
             InitializeComponent();
-            InitializeCanvas();
+            InitializeBackbuffer();
             evalContext.SetParameters(
                 new ParameterInfo("X", typeof(int)),
                 new ParameterInfo("Y", typeof(int)),
@@ -38,7 +39,7 @@ namespace de.mastersign.expressions.demo
 
         private void display_SizeChanged(object sender, EventArgs e)
         {
-            InitializeCanvas();
+            InitializeBackbuffer();
         }
 
         private void cmbExpr_TextChanged(object sender, EventArgs e)
@@ -52,27 +53,27 @@ namespace de.mastersign.expressions.demo
             RepaintCanvas();
         }
 
-        private void InitializeCanvas()
+        private void InitializeBackbuffer()
         {
             var w = display.Width;
             var h = display.Height;
-            if (canvas != null && canvas.Width == w && canvas.Height == h)
+            if (backbuffer != null && backbuffer.Width == w && backbuffer.Height == h)
             {
                 return;
             }
             evalContext.SetVariable("W", w);
             evalContext.SetVariable("H", h);
-            canvas = new Bitmap(w, h, PixelFormat.Format8bppIndexed);
+            backbuffer = new Bitmap(w, h, PixelFormat.Format8bppIndexed);
             if (bwPalette == null)
             {
-                var palette = canvas.Palette;
+                var palette = backbuffer.Palette;
                 for (var i = 0; i < palette.Entries.Length; i++)
                 {
                     palette.Entries[i] = Color.FromArgb(i, i, i);
                 }
                 bwPalette = palette;
             }
-            canvas.Palette = bwPalette;
+            backbuffer.Palette = bwPalette;
         }
 
         private void CompileFunction()
@@ -117,11 +118,14 @@ namespace de.mastersign.expressions.demo
         private void RepaintCanvas()
         {
             if (f == null) return;
-            InitializeCanvas();
+            InitializeBackbuffer();
 
-            var w = canvas.Width;
-            var h = canvas.Height;
-            var bmpData = canvas.LockBits(new Rectangle(0, 0, w, h),
+            var w = backbuffer.Width;
+            var h = backbuffer.Height;
+
+
+            var bmpData = backbuffer.LockBits(
+                new Rectangle(0, 0, w, h),
                 ImageLockMode.WriteOnly, PixelFormat.Format8bppIndexed);
 
             UpdateContext();
@@ -132,12 +136,17 @@ namespace de.mastersign.expressions.demo
                     for (var x = 0; x < w; x++)
                     {
                         var v = f(x, y, (double)x / w - 0.5, (double)y / h - 0.5);
-                        Marshal.WriteByte(line + x,
-                                          (byte)(Math.Min(1.0, Math.Max(0.0, v)) * 255.0));
+                        Marshal.WriteByte(
+                            line + x,
+                            (byte)(Math.Min(1.0, Math.Max(0.0, v)) * 255.0));
                     }
                 });
-            canvas.UnlockBits(bmpData);
-            display.Picture = canvas;
+
+            backbuffer.UnlockBits(bmpData);
+
+            backbuffer = Interlocked.Exchange(ref frontbuffer, backbuffer);
+
+            display.Picture = frontbuffer;
         }
     }
 }
