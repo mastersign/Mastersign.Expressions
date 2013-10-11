@@ -33,7 +33,7 @@ The numerical literals split up into integer, floating point, and decimal litera
 | 64 Bit Integer | *6000L*, *-1234L*, *+2l* | The postfix 'L' can be lower or upper case. The value is represented by _System.Int64_. |
 | Auto Floating Point | *0.0*, *123.567*, *-1.0*, *+0.02*, *001.001* | The precision of the value decides, if 32 or 64 Bit are necessary. |
 | 32 Bit Floating Point | *0.0f*, *42F*, *-30.0f*, *+002.1F* | The postfix 'f' can be lower or upper case. The value is represented by _System.Single_. |
-| 64 Bit Floating Point | *0.0d*, *42D*, *-30.0D*, *+002.1D* | The postfix 'd' can be lower or upper case. The value is represented by _System.Single_. |
+| 64 Bit Floating Point | *0.0d*, *42D*, *-30.0D*, *+002.1D* | The postfix 'd' can be lower or upper case. The value is represented by _System.Double_. |
 | Decimal | *24.99m*, *-90.95M*, *+00.001m* | The postfix 'm' can be lower or upper case. The value is represented by _System.Decimal_. |
 
 !!! {anchor:literals_string}String Literals
