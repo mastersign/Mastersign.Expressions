@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Tobias Kiertscher")]
 [assembly: AssemblyProduct("Mastersign.Expressions")]
-[assembly: AssemblyCopyright("Copyright © Tobias Kiertscher 2013")]
+[assembly: AssemblyCopyright("Copyright © Tobias Kiertscher 2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
