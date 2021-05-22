@@ -6,6 +6,7 @@ using System.Text;
 using NUnit.Framework;
 using Sprache;
 using System.Linq.Expressions;
+using de.mastersign.expressions.functions;
 
 namespace de.mastersign.expressions.language
 {
@@ -679,9 +680,9 @@ namespace de.mastersign.expressions.language
             context.SetVariable("π", Math.PI);
             context.SetVariable("wrappedString", new WrappedString("Hello!"));
             context.AddFunction("sin", new FunctionHandle((Func<double, double>)Math.Sin));
-            context.AddFunction("x2", new FunctionHandle((Func<decimal, decimal>)(v => v * 2m)));
+            //context.AddFunction("x2", new FunctionHandle((Func<decimal, decimal>)(v => v * 2m)));
             context.AddFunction("min", new FunctionHandle((Func<int, int, int>)Math.Min));
-            context.AddFunction("min", new FunctionHandle((Func<string, string, string>)((a, b) => string.Compare(a, b) > 0 ? b : a)));
+            context.AddFunction("min", new FunctionHandle((Func<string, string, string>)Strings.Min));
             //context.AddFunction("rev", new FunctionHandle((Func<string, string>)(s => new string(s.Reverse().ToArray()))));
             //context.AddFunction("if", new FunctionHandle(GetType().GetMethod("If")));
 
@@ -730,6 +731,8 @@ namespace de.mastersign.expressions.language
             ExpectError(context, Conditional.FUNCTION_NAME + "(true, not_exist(), x)"); // invalid function call as parameter
         }
 
+        private static string TestString() { return "Test String"; }
+
         [Test]
         public void MemberReadTest()
         {
@@ -742,12 +745,12 @@ namespace de.mastersign.expressions.language
                 ".b", " .b", ". b", " . b", "._b");
 
             var context = new EvaluationContext();
-            const string str = "Test String";
+            var str = TestString();
             context.SetVariable("strA", str);
             context.SetVariable("strB", str, true);
             context.SetVariable("intA", 42, true);
             context.SetVariable("ex", new MemberReadExample(str), true);
-            context.AddFunction("f", (Func<string>)(() => str));
+            context.AddFunction("f", (Func<string>)TestString);
             context.Capabilities = LanguageCapabilities.MemberRead;
 
             ExpectResult(context, "strA.Length", typeof(int), str.Length);
