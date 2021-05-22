@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Linq.Expressions;
 using System.Text;
 using System.Linq;
@@ -8,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using Sprache;
 using de.mastersign.expressions.language;
+using de.mastersign.expressions.functions;
 
 namespace de.mastersign.expressions
 {
@@ -318,6 +318,15 @@ namespace de.mastersign.expressions
         }
 
         /// <summary>
+        /// Returns the next random value from <see cref="EvaluationContext.Random"/>.
+        /// </summary>
+        /// <returns>A pseudo random number.</returns>
+        public static double NextRandomNumber()
+        {
+            return Random.NextDouble();
+        }
+
+        /// <summary>
         /// Load the package with functions and constants for simple math.
         /// </summary>
         public void LoadMathPackage()
@@ -325,13 +334,13 @@ namespace de.mastersign.expressions
             SetVariable("pi", Math.PI, true);
             SetVariable("e", Math.E, true);
 
-            AddFunction("mod", (Func<Int32, Int32, Int32>)((a, b) => a % b));
-            AddFunction("mod", (Func<UInt32, UInt32, UInt32>)((a, b) => a % b));
-            AddFunction("mod", (Func<Int64, Int64, Int64>)((a, b) => a % b));
-            AddFunction("mod", (Func<UInt64, UInt64, UInt64>)((a, b) => a % b));
-            AddFunction("mod", (Func<Single, Single, Single>)((a, b) => a % b));
-            AddFunction("mod", (Func<Double, Double, Double>)((a, b) => a % b));
-            AddFunction("mod", (Func<Decimal, Decimal, Decimal>)((a, b) => a % b));
+            AddFunction("mod", typeof(Math2).GetMethod("Mod", new[] { typeof(Int32), typeof(Int32) }));
+            AddFunction("mod", typeof(Math2).GetMethod("Mod", new[] { typeof(UInt32), typeof(UInt32) }));
+            AddFunction("mod", typeof(Math2).GetMethod("Mod", new[] { typeof(Int64), typeof(Int64) }));
+            AddFunction("mod", typeof(Math2).GetMethod("Mod", new[] { typeof(UInt64), typeof(UInt64) }));
+            AddFunction("mod", typeof(Math2).GetMethod("Mod", new[] { typeof(Single), typeof(Single) }));
+            AddFunction("mod", typeof(Math2).GetMethod("Mod", new[] { typeof(Double), typeof(Double) }));
+            AddFunction("mod", typeof(Math2).GetMethod("Mod", new[] { typeof(Decimal), typeof(Decimal) }));
 
             AddFunction("abs", typeof(Math).GetMethod("Abs", new[] { typeof(SByte) }));
             AddFunction("abs", typeof(Math).GetMethod("Abs", new[] { typeof(Int16) }));
@@ -377,7 +386,7 @@ namespace de.mastersign.expressions
             AddFunction("log10", typeof(Math).GetMethod("Log10", new[] { typeof(double) }));
             AddFunction("sqrt", typeof(Math).GetMethod("Sqrt", new[] { typeof(double) }));
 
-            AddFunction("rand", (Func<double>)(() => Random.NextDouble()));
+            AddFunction("rand", typeof(EvaluationContext).GetMethod("NextRandomNumber", new Type[0]));
 
             AddFunction("min", typeof(Math).GetMethod("Min", new[] { typeof(SByte), typeof(SByte) }));
             AddFunction("min", typeof(Math).GetMethod("Min", new[] { typeof(Byte), typeof(Byte) }));
@@ -420,7 +429,7 @@ namespace de.mastersign.expressions
             AddFunction("c_byte", typeof(Convert).GetMethod("ToByte", new[] { typeof(Single) }));
             AddFunction("c_byte", typeof(Convert).GetMethod("ToByte", new[] { typeof(Double) }));
             AddFunction("c_byte", typeof(Convert).GetMethod("ToByte", new[] { typeof(Decimal) }));
-            AddFunction("c_byte", new FunctionHandle((Func<string, Byte>)(str => Byte.Parse(str, CultureInfo.InvariantCulture))));
+            AddFunction("c_byte", typeof(Convert2).GetMethod("ParseByte", new[] { typeof(string) }));
 
             AddFunction("c_sbyte", typeof(Convert).GetMethod("ToSByte", new[] { typeof(SByte) }));
             AddFunction("c_sbyte", typeof(Convert).GetMethod("ToSByte", new[] { typeof(Byte) }));
@@ -433,7 +442,7 @@ namespace de.mastersign.expressions
             AddFunction("c_sbyte", typeof(Convert).GetMethod("ToSByte", new[] { typeof(Single) }));
             AddFunction("c_sbyte", typeof(Convert).GetMethod("ToSByte", new[] { typeof(Double) }));
             AddFunction("c_sbyte", typeof(Convert).GetMethod("ToSByte", new[] { typeof(Decimal) }));
-            AddFunction("c_sbyte", new FunctionHandle((Func<string, SByte>)(str => SByte.Parse(str, CultureInfo.InvariantCulture))));
+            AddFunction("c_sbyte", typeof(Convert2).GetMethod("ParseSByte", new[] { typeof(string) }));
 
             AddFunction("c_int16", typeof(Convert).GetMethod("ToInt16", new[] { typeof(SByte) }));
             AddFunction("c_int16", typeof(Convert).GetMethod("ToInt16", new[] { typeof(Byte) }));
@@ -446,7 +455,7 @@ namespace de.mastersign.expressions
             AddFunction("c_int16", typeof(Convert).GetMethod("ToInt16", new[] { typeof(Single) }));
             AddFunction("c_int16", typeof(Convert).GetMethod("ToInt16", new[] { typeof(Double) }));
             AddFunction("c_int16", typeof(Convert).GetMethod("ToInt16", new[] { typeof(Decimal) }));
-            AddFunction("c_int16", new FunctionHandle((Func<string, Int16>)(str => Int16.Parse(str, CultureInfo.InvariantCulture))));
+            AddFunction("c_int16", typeof(Convert2).GetMethod("ParseInt16", new[] { typeof(string) }));
 
             AddFunction("c_uint16", typeof(Convert).GetMethod("ToUInt16", new[] { typeof(SByte) }));
             AddFunction("c_uint16", typeof(Convert).GetMethod("ToUInt16", new[] { typeof(Byte) }));
@@ -459,7 +468,7 @@ namespace de.mastersign.expressions
             AddFunction("c_uint16", typeof(Convert).GetMethod("ToUInt16", new[] { typeof(Single) }));
             AddFunction("c_uint16", typeof(Convert).GetMethod("ToUInt16", new[] { typeof(Double) }));
             AddFunction("c_uint16", typeof(Convert).GetMethod("ToUInt16", new[] { typeof(Decimal) }));
-            AddFunction("c_uint16", new FunctionHandle((Func<string, UInt16>)(str => UInt16.Parse(str, CultureInfo.InvariantCulture))));
+            AddFunction("c_uint16", typeof(Convert2).GetMethod("ParseUInt16", new[] { typeof(string) }));
 
             AddFunction("c_int32", typeof(Convert).GetMethod("ToInt32", new[] { typeof(SByte) }));
             AddFunction("c_int32", typeof(Convert).GetMethod("ToInt32", new[] { typeof(Byte) }));
@@ -472,7 +481,7 @@ namespace de.mastersign.expressions
             AddFunction("c_int32", typeof(Convert).GetMethod("ToInt32", new[] { typeof(Single) }));
             AddFunction("c_int32", typeof(Convert).GetMethod("ToInt32", new[] { typeof(Double) }));
             AddFunction("c_int32", typeof(Convert).GetMethod("ToInt32", new[] { typeof(Decimal) }));
-            AddFunction("c_int32", new FunctionHandle((Func<string, Int32>)(str => Int32.Parse(str, CultureInfo.InvariantCulture))));
+            AddFunction("c_int32", typeof(Convert2).GetMethod("ParseInt32", new[] { typeof(string) }));
 
             AddFunction("c_uint32", typeof(Convert).GetMethod("ToUInt32", new[] { typeof(SByte) }));
             AddFunction("c_uint32", typeof(Convert).GetMethod("ToUInt32", new[] { typeof(Byte) }));
@@ -485,7 +494,7 @@ namespace de.mastersign.expressions
             AddFunction("c_uint32", typeof(Convert).GetMethod("ToUInt32", new[] { typeof(Single) }));
             AddFunction("c_uint32", typeof(Convert).GetMethod("ToUInt32", new[] { typeof(Double) }));
             AddFunction("c_uint32", typeof(Convert).GetMethod("ToUInt32", new[] { typeof(Decimal) }));
-            AddFunction("c_uint32", new FunctionHandle((Func<string, UInt32>)(str => UInt32.Parse(str, CultureInfo.InvariantCulture))));
+            AddFunction("c_uint32", typeof(Convert2).GetMethod("ParseUInt32", new[] { typeof(string) }));
 
             AddFunction("c_int64", typeof(Convert).GetMethod("ToInt64", new[] { typeof(SByte) }));
             AddFunction("c_int64", typeof(Convert).GetMethod("ToInt64", new[] { typeof(Byte) }));
@@ -498,7 +507,7 @@ namespace de.mastersign.expressions
             AddFunction("c_int64", typeof(Convert).GetMethod("ToInt64", new[] { typeof(Single) }));
             AddFunction("c_int64", typeof(Convert).GetMethod("ToInt64", new[] { typeof(Double) }));
             AddFunction("c_int64", typeof(Convert).GetMethod("ToInt64", new[] { typeof(Decimal) }));
-            AddFunction("c_int64", new FunctionHandle((Func<string, Int64>)(str => Int64.Parse(str, CultureInfo.InvariantCulture))));
+            AddFunction("c_int64", typeof(Convert2).GetMethod("ParseInt64", new[] { typeof(string) }));
 
             AddFunction("c_uint64", typeof(Convert).GetMethod("ToUInt64", new[] { typeof(SByte) }));
             AddFunction("c_uint64", typeof(Convert).GetMethod("ToUInt64", new[] { typeof(Byte) }));
@@ -511,7 +520,7 @@ namespace de.mastersign.expressions
             AddFunction("c_uint64", typeof(Convert).GetMethod("ToUInt64", new[] { typeof(Single) }));
             AddFunction("c_uint64", typeof(Convert).GetMethod("ToUInt64", new[] { typeof(Double) }));
             AddFunction("c_uint64", typeof(Convert).GetMethod("ToUInt64", new[] { typeof(Decimal) }));
-            AddFunction("c_uint64", new FunctionHandle((Func<string, UInt64>)(str => UInt64.Parse(str, CultureInfo.InvariantCulture))));
+            AddFunction("c_uint64", typeof(Convert2).GetMethod("ParseUInt64", new[] { typeof(string) }));
 
             AddFunction("c_single", typeof(Convert).GetMethod("ToSingle", new[] { typeof(SByte) }));
             AddFunction("c_single", typeof(Convert).GetMethod("ToSingle", new[] { typeof(Byte) }));
@@ -524,7 +533,7 @@ namespace de.mastersign.expressions
             AddFunction("c_single", typeof(Convert).GetMethod("ToSingle", new[] { typeof(Single) }));
             AddFunction("c_single", typeof(Convert).GetMethod("ToSingle", new[] { typeof(Double) }));
             AddFunction("c_single", typeof(Convert).GetMethod("ToSingle", new[] { typeof(Decimal) }));
-            AddFunction("c_single", new FunctionHandle((Func<string, Single>)(str => Single.Parse(str, CultureInfo.InvariantCulture))));
+            AddFunction("c_single", typeof(Convert2).GetMethod("ParseSingle", new[] { typeof(string) }));
 
             AddFunction("c_double", typeof(Convert).GetMethod("ToDouble", new[] { typeof(SByte) }));
             AddFunction("c_double", typeof(Convert).GetMethod("ToDouble", new[] { typeof(Byte) }));
@@ -537,7 +546,7 @@ namespace de.mastersign.expressions
             AddFunction("c_double", typeof(Convert).GetMethod("ToDouble", new[] { typeof(Single) }));
             AddFunction("c_double", typeof(Convert).GetMethod("ToDouble", new[] { typeof(Double) }));
             AddFunction("c_double", typeof(Convert).GetMethod("ToDouble", new[] { typeof(Decimal) }));
-            AddFunction("c_double", new FunctionHandle((Func<string, Double>)(str => Double.Parse(str, CultureInfo.InvariantCulture))));
+            AddFunction("c_double", typeof(Convert2).GetMethod("ParseDouble", new[] { typeof(string) }));
 
             AddFunction("c_decimal", typeof(Convert).GetMethod("ToDecimal", new[] { typeof(SByte) }));
             AddFunction("c_decimal", typeof(Convert).GetMethod("ToDecimal", new[] { typeof(Byte) }));
@@ -550,23 +559,23 @@ namespace de.mastersign.expressions
             AddFunction("c_decimal", typeof(Convert).GetMethod("ToDecimal", new[] { typeof(Single) }));
             AddFunction("c_decimal", typeof(Convert).GetMethod("ToDecimal", new[] { typeof(Double) }));
             AddFunction("c_decimal", typeof(Convert).GetMethod("ToDecimal", new[] { typeof(Decimal) }));
-            AddFunction("c_decimal", new FunctionHandle((Func<string, Decimal>)(str => Decimal.Parse(str, CultureInfo.InvariantCulture))));
+            AddFunction("c_decimal", typeof(Convert2).GetMethod("ParseDecimal", new[] { typeof(string) }));
 
-            AddFunction("c_str", new FunctionHandle((Func<SByte, string>)(v => v.ToString(CultureInfo.InvariantCulture))));
-            AddFunction("c_str", new FunctionHandle((Func<Byte, string>)(v => v.ToString(CultureInfo.InvariantCulture))));
-            AddFunction("c_str", new FunctionHandle((Func<Int16, string>)(v => v.ToString(CultureInfo.InvariantCulture))));
-            AddFunction("c_str", new FunctionHandle((Func<UInt16, string>)(v => v.ToString(CultureInfo.InvariantCulture))));
-            AddFunction("c_str", new FunctionHandle((Func<Int32, string>)(v => v.ToString(CultureInfo.InvariantCulture))));
-            AddFunction("c_str", new FunctionHandle((Func<UInt32, string>)(v => v.ToString(CultureInfo.InvariantCulture))));
-            AddFunction("c_str", new FunctionHandle((Func<Int64, string>)(v => v.ToString(CultureInfo.InvariantCulture))));
-            AddFunction("c_str", new FunctionHandle((Func<UInt64, string>)(v => v.ToString(CultureInfo.InvariantCulture))));
-            AddFunction("c_str", new FunctionHandle((Func<Single, string>)(v => v.ToString(CultureInfo.InvariantCulture))));
-            AddFunction("c_str", new FunctionHandle((Func<Double, string>)(v => v.ToString(CultureInfo.InvariantCulture))));
-            AddFunction("c_str", new FunctionHandle((Func<Decimal, string>)(v => v.ToString(CultureInfo.InvariantCulture))));
-            AddFunction("c_str", new FunctionHandle((Func<bool, string>)(v => v.ToString(CultureInfo.InvariantCulture))));
-            AddFunction("c_str", new FunctionHandle((Func<DateTime, string>)(v => v.ToString(CultureInfo.InvariantCulture))));
-            AddFunction("c_str", new FunctionHandle((Func<string, string>)(v => v)));
-            AddFunction("c_str", new FunctionHandle((Func<object, string>)(v => v.ToString())));
+            AddFunction("c_str", typeof(Convert2).GetMethod("SByteToString", new[] { typeof(SByte) }));
+            AddFunction("c_str", typeof(Convert2).GetMethod("ByteToString", new[] { typeof(Byte) }));
+            AddFunction("c_str", typeof(Convert2).GetMethod("Int16ToString", new[] { typeof(Int16) }));
+            AddFunction("c_str", typeof(Convert2).GetMethod("UInt16ToString", new[] { typeof(UInt16) }));
+            AddFunction("c_str", typeof(Convert2).GetMethod("Int32ToString", new[] { typeof(Int32) }));
+            AddFunction("c_str", typeof(Convert2).GetMethod("UInt32ToString", new[] { typeof(UInt32) }));
+            AddFunction("c_str", typeof(Convert2).GetMethod("Int64ToString", new[] { typeof(Int64) }));
+            AddFunction("c_str", typeof(Convert2).GetMethod("UInt64ToString", new[] { typeof(UInt64) }));
+            AddFunction("c_str", typeof(Convert2).GetMethod("SingleToString", new[] { typeof(Single) }));
+            AddFunction("c_str", typeof(Convert2).GetMethod("DoubleToString", new[] { typeof(Double) }));
+            AddFunction("c_str", typeof(Convert2).GetMethod("DecimalToString", new[] { typeof(Decimal) }));
+            AddFunction("c_str", typeof(Convert2).GetMethod("BooleanToString", new[] { typeof(bool) }));
+            AddFunction("c_str", typeof(Convert2).GetMethod("DateTimeToString", new[] { typeof(DateTime) }));
+            AddFunction("c_str", typeof(Convert2).GetMethod("StringToString", new[] { typeof(string) }));
+            AddFunction("c_str", typeof(Convert2).GetMethod("ObjectToString", new[] { typeof(object) }));
         }
 
         /// <summary>
@@ -574,38 +583,38 @@ namespace de.mastersign.expressions
         /// </summary>
         public void LoadStringPackage()
         {
-            AddFunction("to_lower", new FunctionHandle((Func<string, string>)(s => s.ToLowerInvariant())));
-            AddFunction("to_upper", new FunctionHandle((Func<string, string>)(s => s.ToUpperInvariant())));
-            AddFunction("trim", new FunctionHandle((Func<string, string>)(s => s.Trim())));
-            AddFunction("trim_start", new FunctionHandle((Func<string, string>)(s => s.TrimStart())));
-            AddFunction("trim_end", new FunctionHandle((Func<string, string>)(s => s.TrimEnd())));
-            AddFunction("substr", new FunctionHandle((Func<string, int, string>)((str, start) => str.Substring(start))));
-            AddFunction("substr", new FunctionHandle((Func<string, int, int, string>)((str, start, count) => str.Substring(start, count))));
-            AddFunction("remove", new FunctionHandle((Func<string, int, string>)((str, start) => str.Remove(start))));
-            AddFunction("remove", new FunctionHandle((Func<string, int, int, string>)((str, start, count) => str.Remove(start, count))));
-            AddFunction("replace", new FunctionHandle((Func<string, string, string, string>)((str, oldVal, newVal) => str.Replace(oldVal, newVal))));
+            AddFunction("to_lower", typeof(Strings).GetMethod("ToLower", new[] { typeof(string) }));
+            AddFunction("to_upper", typeof(Strings).GetMethod("ToUpper", new[] { typeof(string) }));
+            AddFunction("trim", typeof(Strings).GetMethod("Trim", new[] { typeof(string) }));
+            AddFunction("trim_start", typeof(Strings).GetMethod("TrimStart", new[] { typeof(string) }));
+            AddFunction("trim_end", typeof(Strings).GetMethod("TrimEnd", new[] { typeof(string) }));
+            AddFunction("substr", typeof(Strings).GetMethod("Substr", new[] { typeof(string), typeof(int) }));
+            AddFunction("substr", typeof(Strings).GetMethod("Substr", new[] { typeof(string), typeof(int), typeof(int) }));
+            AddFunction("remove", typeof(Strings).GetMethod("Remove", new[] { typeof(string), typeof(int) }));
+            AddFunction("remove", typeof(Strings).GetMethod("Remove", new[] { typeof(string), typeof(int), typeof(int) }));
+            AddFunction("replace", typeof(Strings).GetMethod("Replace", new[] { typeof(string), typeof(string), typeof(string) }));
 
-            AddFunction("find", new FunctionHandle((Func<string, string, int>)((haystack, needle) => haystack.IndexOf(needle, StringComparison.InvariantCulture))));
-            AddFunction("find", new FunctionHandle((Func<string, string, int, int>)((haystack, needle, start) => haystack.IndexOf(needle, start, StringComparison.InvariantCulture))));
-            AddFunction("find", new FunctionHandle((Func<string, string, int, int, int>)((haystack, needle, start, count) => haystack.IndexOf(needle, start, count, StringComparison.InvariantCulture))));
-            AddFunction("find_i", new FunctionHandle((Func<string, string, int>)((haystack, needle) => haystack.IndexOf(needle, StringComparison.InvariantCultureIgnoreCase))));
-            AddFunction("find_i", new FunctionHandle((Func<string, string, int, int>)((haystack, needle, start) => haystack.IndexOf(needle, start, StringComparison.InvariantCultureIgnoreCase))));
-            AddFunction("find_i", new FunctionHandle((Func<string, string, int, int, int>)((haystack, needle, start, count) => haystack.IndexOf(needle, start, count, StringComparison.InvariantCultureIgnoreCase))));
-            AddFunction("find_last", new FunctionHandle((Func<string, string, int>)((haystack, needle) => haystack.LastIndexOf(needle, StringComparison.InvariantCulture))));
-            AddFunction("find_last", new FunctionHandle((Func<string, string, int, int>)((haystack, needle, start) => haystack.LastIndexOf(needle, start, StringComparison.InvariantCulture))));
-            AddFunction("find_last", new FunctionHandle((Func<string, string, int, int, int>)((haystack, needle, start, count) => haystack.LastIndexOf(needle, start, count, StringComparison.InvariantCulture))));
-            AddFunction("find_last_i", new FunctionHandle((Func<string, string, int>)((haystack, needle) => haystack.LastIndexOf(needle, StringComparison.InvariantCultureIgnoreCase))));
-            AddFunction("find_last_i", new FunctionHandle((Func<string, string, int, int>)((haystack, needle, start) => haystack.LastIndexOf(needle, start, StringComparison.InvariantCultureIgnoreCase))));
-            AddFunction("find_last_i", new FunctionHandle((Func<string, string, int, int, int>)((haystack, needle, start, count) => haystack.LastIndexOf(needle, start, count, StringComparison.InvariantCultureIgnoreCase))));
+            AddFunction("find", typeof(Strings).GetMethod("Find", new[] { typeof(string), typeof(string) }));
+            AddFunction("find", typeof(Strings).GetMethod("Find", new[] { typeof(string), typeof(string), typeof(int) }));
+            AddFunction("find", typeof(Strings).GetMethod("Find", new[] { typeof(string), typeof(string), typeof(int), typeof(int) }));
+            AddFunction("find_i", typeof(Strings).GetMethod("FindIgnoreCase", new[] { typeof(string), typeof(string) }));
+            AddFunction("find_i", typeof(Strings).GetMethod("FindIgnoreCase", new[] { typeof(string), typeof(string), typeof(int) }));
+            AddFunction("find_i", typeof(Strings).GetMethod("FindIgnoreCase", new[] { typeof(string), typeof(string), typeof(int), typeof(int) }));
+            AddFunction("find_last", typeof(Strings).GetMethod("FindLast", new[] { typeof(string), typeof(string) }));
+            AddFunction("find_last", typeof(Strings).GetMethod("FindLast", new[] { typeof(string), typeof(string), typeof(int) }));
+            AddFunction("find_last", typeof(Strings).GetMethod("FindLast", new[] { typeof(string), typeof(string), typeof(int), typeof(int) }));
+            AddFunction("find_last_i", typeof(Strings).GetMethod("FindLastIgnoreCase", new[] { typeof(string), typeof(string) }));
+            AddFunction("find_last_i", typeof(Strings).GetMethod("FindLastIgnoreCase", new[] { typeof(string), typeof(string), typeof(int) }));
+            AddFunction("find_last_i", typeof(Strings).GetMethod("FindLastIgnoreCase", new[] { typeof(string), typeof(string), typeof(int), typeof(int) }));
 
-            AddFunction("contains", new FunctionHandle((Func<string, string, bool>)((haystack, needle) => haystack.Contains(needle))));
-            AddFunction("starts_with", new FunctionHandle((Func<string, string, bool>)((str, start) => str.StartsWith(start))));
-            AddFunction("ends_with", new FunctionHandle((Func<string, string, bool>)((str, end) => str.EndsWith(end))));
+            AddFunction("contains", typeof(Strings).GetMethod("Contains", new[] { typeof(string), typeof(string) }));
+            AddFunction("starts_with", typeof(Strings).GetMethod("StartsWith", new[] { typeof(string), typeof(string) }));
+            AddFunction("ends_with", typeof(Strings).GetMethod("EndsWith", new[] { typeof(string), typeof(string) }));
 
-            AddFunction("min", new FunctionHandle((Func<string, string, string>)((a, b) => string.Compare(a, b, false, CultureInfo.InvariantCulture) > 0 ? b : a)));
-            AddFunction("max", new FunctionHandle((Func<string, string, string>)((a, b) => string.Compare(a, b, false, CultureInfo.InvariantCulture) < 0 ? b : a)));
-            AddFunction("min_i", new FunctionHandle((Func<string, string, string>)((a, b) => string.Compare(a, b, true, CultureInfo.InvariantCulture) > 0 ? b.ToLowerInvariant() : a.ToLowerInvariant())));
-            AddFunction("max_i", new FunctionHandle((Func<string, string, string>)((a, b) => string.Compare(a, b, true, CultureInfo.InvariantCulture) < 0 ? b.ToLowerInvariant() : a.ToLowerInvariant())));
+            AddFunction("min", typeof(Strings).GetMethod("Min", new[] { typeof(string), typeof(string) }));
+            AddFunction("max", typeof(Strings).GetMethod("Max", new[] { typeof(string), typeof(string) }));
+            AddFunction("min_i", typeof(Strings).GetMethod("MinIgnoreCase", new[] { typeof(string), typeof(string) }));
+            AddFunction("max_i", typeof(Strings).GetMethod("MaxIgnoreCase", new[] { typeof(string), typeof(string) }));
         }
 
         /// <summary>
@@ -614,11 +623,7 @@ namespace de.mastersign.expressions
         public void LoadRegexPackage()
         {
             AddFunction("regex", typeof(Regex).GetMethod("IsMatch", new[] { typeof(string), typeof(string) }));
-            AddFunction("regex_match", new FunctionHandle((Func<string, string, string>)((str, regex) =>
-                {
-                    var m = Regex.Match(str, regex);
-                    return m.Success ? m.Value : null;
-                })));
+            AddFunction("regex_match", typeof(Strings).GetMethod("RegexMatch", new[] { typeof(string), typeof(string) }));
             AddFunction("regex_replace", typeof(Regex).GetMethod("Replace", new[] { typeof(string), typeof(string), typeof(string) }));
         }
 
