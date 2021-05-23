@@ -1,8 +1,9 @@
-! Example
-To use Mastersign.Expressions you need only to create an instance of *EvaluationContext*,
+# Example
+
+To use _Mastersign.Expressions_ you need only to create an instance of `EvaluationContext`,
 maybe add custom variables and functions, and off you go!
 
-{code:c#}
+```csharp
 using System;
 using de.mastersign.expressions;
 static class Program
@@ -51,11 +52,11 @@ static class Program
         // > "High " & x & "!" -> High 5!
     }
 }
-{code:c#}
+```
 
-In the version 0.4.0 of Mastersign.Expressions the support for reading members is allways activated, since version 0.4.1 additional language capabilities are activated by *ExpressionContext.Capabilities*. The following example demonstrates the activation of optional language features.
+In the version 0.4.0 of Mastersign.Expressions the support for reading members is allways activated, since version 0.4.1 additional language capabilities are activated by `ExpressionContext.Capabilities`. The following example demonstrates the activation of optional language features.
 
-{code:c#}
+```csharp
 using System;
 using de.mastersign.expressions;
 static class Program
@@ -79,4 +80,4 @@ static class Program
         // > ("abc" & "def").Length -> 6
     }
 }
-{code:c#}
+```
