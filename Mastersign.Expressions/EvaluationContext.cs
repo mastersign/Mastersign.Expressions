@@ -279,6 +279,7 @@ namespace de.mastersign.expressions
         /// </summary>
         public void LoadAllPackages()
         {
+            LoadLogicPackage();
             LoadMathPackage();
             LoadConversionPackage();
             LoadStringPackage();
