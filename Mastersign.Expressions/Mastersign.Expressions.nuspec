@@ -6,13 +6,12 @@
     <title>$title$</title>
     <authors>$author$</authors>
     <owners>$author$</owners>
-    <licenseUrl>https://mastersignexpr.codeplex.com/license</licenseUrl>
-    <projectUrl>https://mastersignexpr.codeplex.com/</projectUrl>
+    <licenseUrl>https://github.com/mastersign/Mastersign.Expressions/raw/master/Mastersign.Expressions/LICENSE.md</licenseUrl>
+    <projectUrl>https://github.com/mastersign/Mastersign.Expressions</projectUrl>
     <iconUrl>https://github.com/mastersign/Mastersign.Expressions/raw/master/Mastersign.Expressions/icon/icon32.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>First release as NuGet package.</releaseNotes>
-    <copyright>Copyright 2014</copyright>
+    <copyright>Copyright 2021</copyright>
     <tags>Expressions Compiler DSL Language</tags>
   </metadata>
 </package>

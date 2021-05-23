@@ -284,5 +284,28 @@ namespace de.mastersign.expressions
 
             Assert.AreEqual((int)context.EvaluateExpression("1 + 2"), 3);
         }
+
+        [Test]
+        public void StaticLambdaTest()
+        {
+            var context = new EvaluationContext();
+            context.AddFunction("test", (Func<string, int>)(static s => s.Length));
+
+            var evaluatedResult = context.EvaluateExpression("test(\"abc\")");
+            Assert.AreEqual(3, evaluatedResult);
+        }
+
+        [Test]
+        public void DynamicLambdaTest()
+        {
+            var closureVar = new string('X', 4);
+
+            var context = new EvaluationContext();
+            context.AddFunction("test", (Func<int>)(() => closureVar.Length));
+
+            var evaluatedResult = context.EvaluateExpression("test()");
+            Assert.AreEqual(4, evaluatedResult);
+        }
+
     }
 }
