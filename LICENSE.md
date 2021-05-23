@@ -1,6 +1,9 @@
-Mastersign.Expressions is licensed by the MIT license:
+License
+=======
 
-Copyright (c) 2021 by Tobias Kiertscher <dev@mastersign.de>
+_Mastersign.Expressions is licensed by the MIT license._
+
+**Copyright (c) 2021 by Tobias Kiertscher <dev@mastersign.de>**
 
 Permission is hereby granted, free of charge, to any person obtaining a copy 
 of this software and associated documentation files (the "Software"), 
