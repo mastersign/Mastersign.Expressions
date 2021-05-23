@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Sprache;
-using de.mastersign.minimods.chain;
+using Mastersign.MiniMods.Chain;
 
-namespace de.mastersign.expressions.language
+namespace Mastersign.Expressions.Language
 {
     internal class Grammar
     {
@@ -239,7 +239,7 @@ namespace de.mastersign.expressions.language
                     from call in
                         (
                             from identifier in Identifier.Token()
-                            select language.FunctionCall.CreateInstance(identifier))
+                            select Language.FunctionCall.CreateInstance(identifier))
                     from lPar in Parse.Char('(')
                     from parameters in ExpressionList
                         .Or(Parse.WhiteSpace.Many().Return(Chain<ExpressionElement>.Empty))

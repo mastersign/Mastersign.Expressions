@@ -3,7 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System;
 
-namespace de.mastersign.expressions.demo
+namespace Mastersign.Expressions.Demo
 {
     partial class MainForm
     {
@@ -40,7 +40,7 @@ namespace de.mastersign.expressions.demo
             this.timer = new System.Windows.Forms.Timer(this.components);
             this.cmbExpr = new System.Windows.Forms.ComboBox();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.display = new de.mastersign.expressions.demo.Display();
+            this.display = new Mastersign.Expressions.Demo.Display();
             this.chkParallel = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 

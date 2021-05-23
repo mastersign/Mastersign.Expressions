@@ -1,4 +1,4 @@
-﻿namespace de.mastersign.expressions.demo
+﻿namespace Mastersign.Expressions.Demo
 {
     partial class Display
     {

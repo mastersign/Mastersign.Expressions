@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
-namespace de.mastersign.expressions.demo
+namespace Mastersign.Expressions.Demo
 {
     public partial class Display : UserControl
     {

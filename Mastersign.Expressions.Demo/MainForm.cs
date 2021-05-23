@@ -10,7 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace de.mastersign.expressions.demo
+namespace Mastersign.Expressions.Demo
 {
     public partial class MainForm : Form
     {

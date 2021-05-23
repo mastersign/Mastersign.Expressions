@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Reflection;
 
-namespace de.mastersign.expressions
+namespace Mastersign.Expressions
 {
     /// <summary>
     /// A handle to describe a function for registration in the <see cref="EvaluationContext"/>.

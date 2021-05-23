@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace de.mastersign.expressions.language
+namespace Mastersign.Expressions.Language
 {
     static class NumericHelper
     {

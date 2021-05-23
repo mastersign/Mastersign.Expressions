@@ -6,10 +6,10 @@ using System;
 using System.Text.RegularExpressions;
 using System.Threading;
 using Sprache;
-using de.mastersign.expressions.language;
-using de.mastersign.expressions.functions;
+using Mastersign.Expressions.Language;
+using Mastersign.Expressions.Functions;
 
-namespace de.mastersign.expressions
+namespace Mastersign.Expressions
 {
     /// <summary>
     /// The evaluation context provides functions, constants and other contextual information

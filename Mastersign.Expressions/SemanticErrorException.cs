@@ -4,7 +4,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 
-namespace de.mastersign.expressions
+namespace Mastersign.Expressions
 {
     /// <summary>
     /// Represents a semantic error in an expression string.

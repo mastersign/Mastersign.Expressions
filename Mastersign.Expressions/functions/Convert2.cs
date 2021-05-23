@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
 
-namespace de.mastersign.expressions.functions
+namespace Mastersign.Expressions.Functions
 {
     internal static class Convert2
     {

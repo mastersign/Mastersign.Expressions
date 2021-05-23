@@ -4,7 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 
-namespace de.mastersign.expressions.language
+namespace Mastersign.Expressions.Language
 {
     internal class Conditional : FunctionCall
     {

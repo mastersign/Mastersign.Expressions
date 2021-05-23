@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace de.mastersign.expressions.demo
+namespace Mastersign.Expressions.Demo
 {
     static class Program
     {

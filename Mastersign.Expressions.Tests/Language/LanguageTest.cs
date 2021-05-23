@@ -6,9 +6,10 @@ using System.Text;
 using NUnit.Framework;
 using Sprache;
 using System.Linq.Expressions;
-using de.mastersign.expressions.functions;
+using Mastersign.Expressions.Language;
+using Mastersign.Expressions.Functions;
 
-namespace de.mastersign.expressions.language
+namespace Mastersign.Expressions.Tests.Language
 {
     internal class LanguageTest
     {

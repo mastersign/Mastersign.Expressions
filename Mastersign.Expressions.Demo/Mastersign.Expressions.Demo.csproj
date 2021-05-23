@@ -15,7 +15,6 @@
 		<Authors>Tobias Kiertscher</Authors>
 		<Copyright>Copyright © Tobias Kiertscher 2021</Copyright>
 
-		<RootNamespace>de.mastersign.expressions.demo</RootNamespace>
 	</PropertyGroup>
 	
 	<ItemGroup>

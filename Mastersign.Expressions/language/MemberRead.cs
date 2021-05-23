@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 
-namespace de.mastersign.expressions.language
+namespace Mastersign.Expressions.Language
 {
     internal class MemberRead : ExpressionNode
     {

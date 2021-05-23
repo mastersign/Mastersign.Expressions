@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace de.mastersign.minimods.chain
+namespace Mastersign.MiniMods.Chain
 {
     /// <summary>
     /// A simple functional immutable data structure for a chained list.

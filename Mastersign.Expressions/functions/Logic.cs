@@ -1,4 +1,4 @@
-﻿namespace de.mastersign.expressions.functions
+﻿namespace Mastersign.Expressions.Functions
 {
     internal static class Logic
     {

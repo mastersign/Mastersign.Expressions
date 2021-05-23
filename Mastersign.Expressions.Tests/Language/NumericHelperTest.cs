@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
+using Mastersign.Expressions.Language;
 
-namespace de.mastersign.expressions.language
+namespace Mastersign.Expressions.Tests.Language
 {
     internal class NumericHelperTest
     {

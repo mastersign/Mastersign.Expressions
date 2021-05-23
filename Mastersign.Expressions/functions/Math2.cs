@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace de.mastersign.expressions.functions
+namespace Mastersign.Expressions.Functions
 {
     internal static class Math2
     {

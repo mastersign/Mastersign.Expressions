@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using NUnit.Framework;
 
-namespace de.mastersign.expressions
+namespace Mastersign.Expressions.Tests
 {
     internal class EvaluationContextTest
     {

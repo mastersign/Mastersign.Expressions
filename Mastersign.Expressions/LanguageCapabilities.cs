@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace de.mastersign.expressions
+namespace Mastersign.Expressions
 {
     /// <summary>
     /// This enumeration contains all configuration modes for the language grammar.

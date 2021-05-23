@@ -4,7 +4,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System;
 
-namespace de.mastersign.expressions
+namespace Mastersign.Expressions
 {
     /// <summary>
     /// This class represents a parameter in the evaluation context.

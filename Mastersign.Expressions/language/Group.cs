@@ -3,7 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System;
 
-namespace de.mastersign.expressions.language
+namespace Mastersign.Expressions.Language
 {
     internal class Group : ExpressionNode
     {

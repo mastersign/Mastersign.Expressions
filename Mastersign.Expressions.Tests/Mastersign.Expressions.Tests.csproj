@@ -4,7 +4,6 @@
 		<TargetFrameworks>net5.0;netcoreapp3.1;net461</TargetFrameworks>
 		<LangVersion>9.0</LangVersion>
 		<IsPackable>false</IsPackable>
-		<RootNamespace>de.mastersign.expressions.tests</RootNamespace>
 	</PropertyGroup>
 
 	<ItemGroup>

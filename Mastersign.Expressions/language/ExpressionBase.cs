@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using System.Collections.Generic;
 using System;
 
-namespace de.mastersign.expressions.language
+namespace Mastersign.Expressions.Language
 {
     /// <summary>
     /// The base class of all nodes in the abstract syntax tree of Mastersign.Expressions.
