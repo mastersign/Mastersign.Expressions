@@ -7,11 +7,24 @@
 	
 		<Title>Mastersign.Expressions</Title>
 		<Product>Mastersign.Expressions</Product>
-		<Description>A simple expression language.</Description>
+		<Description>A parser and compiler for a small EXCEL like expression language inside your .NET applications.</Description>
 		<Authors>Tobias Kiertscher</Authors>
 		<Copyright>Copyright © Tobias Kiertscher 2021</Copyright>
 
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageProjectUrl>https://github.com/mastersign/Mastersign.Expressions</PackageProjectUrl>
+		<PackageTags>Compiler;Language;Expression</PackageTags>
+		<PackageIcon>icon32.png</PackageIcon>
+		<PackageReadmeFile>../README.md</PackageReadmeFile>
+		
+		<RepositoryType>git</RepositoryType>
+		<RepositoryUrl>https://github.com/mastersign/Mastersign.Expressions.git</RepositoryUrl>
+
 	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="icon/icon32.png" Pack="true" PackagePath="/" />
+	</ItemGroup>
 
 	<ItemGroup>
 	  <PackageReference Include="Sprache" Version="2.3.1" />
