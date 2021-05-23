@@ -12,13 +12,13 @@ namespace de.mastersign.expressions
     /// </summary>
     public class FunctionGroup : IEnumerable<FunctionHandle>
     {
-        private readonly List<FunctionHandle> handles = new List<FunctionHandle>();
+        private readonly Dictionary<MethodBase, FunctionHandle> handles = new Dictionary<MethodBase, FunctionHandle>();
 
         /// <summary>
         /// Initializes an empty instance of the class <see cref="FunctionGroup"/>.
         /// </summary>
         public FunctionGroup()
-        {}
+        { }
 
         /// <summary>
         /// Initializes a new instance of the class <see cref="FunctionGroup"/>
@@ -27,7 +27,10 @@ namespace de.mastersign.expressions
         /// <param name="handles">The functions for the group.</param>
         public FunctionGroup(IEnumerable<FunctionHandle> handles)
         {
-            this.handles.AddRange(handles);
+            foreach (var fh in handles)
+            {
+                this.handles.Add(fh.Method, fh);
+            }
         }
 
         /// <summary>
@@ -36,7 +39,7 @@ namespace de.mastersign.expressions
         /// <param name="handle">The function.</param>
         public void Add(FunctionHandle handle)
         {
-            handles.Add(handle);
+            handles.Add(handle.Method, handle);
         }
 
         /// <summary>
@@ -46,17 +49,15 @@ namespace de.mastersign.expressions
         /// <returns>The best matching function or <c>null</c> if no match was found.</returns>
         public FunctionHandle FindMatch(Type[] parameterTypes)
         {
-            //return handles.FirstOrDefault(h => h.MatchesDirect(parameterTypes))
-            //    ?? handles.FirstOrDefault(h => h.MatchesWithConversion(parameterTypes));
             var binder = Type.DefaultBinder;
             try
             {
                 var method = binder.SelectMethod(
                     BindingFlags.Default,
-                    handles.Select(fh => (MethodBase) fh.Method).ToArray(),
+                    handles.Values.Select(fh => (MethodBase)fh.Method).ToArray(),
                     parameterTypes, null);
-                return method != null 
-                    ? new FunctionHandle((MethodInfo)method)
+                return method != null
+                    ? new FunctionHandle((MethodInfo)method, handles[method].Target)
                     : null;
             }
             catch (AmbiguousMatchException)
@@ -71,7 +72,7 @@ namespace de.mastersign.expressions
         /// <returns>The enumerator.</returns>
         public IEnumerator<FunctionHandle> GetEnumerator()
         {
-            return handles.GetEnumerator();
+            return handles.Values.GetEnumerator();
         }
 
         /// <summary>

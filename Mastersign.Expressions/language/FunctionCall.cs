@@ -117,13 +117,15 @@ namespace de.mastersign.expressions.language
             {
                 if (p[i].Type == pi[i].ParameterType) continue;
 
-                if (NumericHelper.IsNumeric(pi[i].ParameterType) && 
+                if (NumericHelper.IsNumeric(pi[i].ParameterType) &&
                     NumericHelper.IsNumeric(p[i].Type))
                 {
                     p[i] = Expression.ConvertChecked(p[i], pi[i].ParameterType);
                 }
             }
-            return Expression.Call(function.Method, p);
+            return function.Method.IsStatic
+                ? Expression.Call(function.Method, p)
+                : Expression.Call(Expression.Constant(function.Target), function.Method, p);
         }
 
         public override IEnumerator<ExpressionElement> GetEnumerator()
