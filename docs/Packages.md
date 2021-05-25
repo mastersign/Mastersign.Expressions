@@ -71,6 +71,7 @@ All conversion functions start with the prefix `c_` followed by a name describin
 
 ## String Manipulation
 
+* `len(value)` - Returns the length of a string
 * `to_lower(value)` - Converts the casing of a string into lower case (`System.String.ToLowerInvariant()`)
 * `to_upper(value)` - Converts the casing of a string into upper case (`System.String.ToUpperInvariant()`)
 * `trim(value)` - Removes leading and trailing whitespaces from a string (`System.String.Trim()`)

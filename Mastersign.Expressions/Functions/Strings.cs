@@ -6,6 +6,8 @@ namespace Mastersign.Expressions.Functions
 {
     internal static class Strings
     {
+        public static int Length(string s) { return s.Length; }
+
         public static string ToLower(string s) { return s.ToLowerInvariant(); }
         public static string ToUpper(string s) { return s.ToUpperInvariant(); }
         public static string Trim(string s) { return s.Trim(); }

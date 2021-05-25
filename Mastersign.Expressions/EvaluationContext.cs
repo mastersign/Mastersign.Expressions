@@ -582,6 +582,8 @@ namespace Mastersign.Expressions
         /// </summary>
         public void LoadStringPackage()
         {
+            AddFunction("len", typeof(Strings).GetMethod("Length", new[] { typeof(string) }));
+
             AddFunction("to_lower", typeof(Strings).GetMethod("ToLower", new[] { typeof(string) }));
             AddFunction("to_upper", typeof(Strings).GetMethod("ToUpper", new[] { typeof(string) }));
             AddFunction("trim", typeof(Strings).GetMethod("Trim", new[] { typeof(string) }));
