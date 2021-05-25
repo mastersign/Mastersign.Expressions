@@ -709,6 +709,7 @@ namespace Mastersign.Expressions.Tests.Language
             var context = new EvaluationContext();
             context.SetVariable("a", 42);
             context.SetVariable("b", 12);
+            context.SetVariable("c", Math.E);
             context.SetVariable("x", "abc");
             context.SetVariable("y", "xyz");
 
@@ -724,12 +725,27 @@ namespace Mastersign.Expressions.Tests.Language
             ExpectError(context, Conditional.FUNCTION_NAME + "(true, 1, 2, 3)");
             ExpectError(context, Conditional.FUNCTION_NAME + "(true, 1, 2, 3, 4)");
 
+            // wrong argument type
             ExpectError(context, Conditional.FUNCTION_NAME + "(100, a, b)"); // wrong type for condition
             ExpectError(context, Conditional.FUNCTION_NAME + "(true, a, x)"); // different types for true and false part
 
             // wrapped semantic errors
             ExpectError(context, Conditional.FUNCTION_NAME + "(not_exist(), a, b)"); // invalid function call as parameter
             ExpectError(context, Conditional.FUNCTION_NAME + "(true, not_exist(), x)"); // invalid function call as parameter
+        }
+
+        [Test]
+        public void ConditionalTestWithUpCast()
+        {
+            var context = new EvaluationContext();
+            context.LoadConversionPackage();
+            context.SetVariable("a", 42);
+            context.SetVariable("b", Math.E);
+
+            ExpectResult(context, Conditional.FUNCTION_NAME + "(true, a, b)", typeof(double), 42.0);
+            ExpectResult(context, Conditional.FUNCTION_NAME + "(false, a, b)", typeof(double), Math.E);
+            ExpectResult(context, Conditional.FUNCTION_NAME + "(true, b, a)", typeof(double), Math.E);
+            ExpectResult(context, Conditional.FUNCTION_NAME + "(false, b, a)", typeof(double), 42.0);
         }
 
         private static string TestString() { return "Test String"; }
