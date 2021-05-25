@@ -291,7 +291,7 @@ namespace Mastersign.Expressions
         /// </summary>
         public void LoadLogicPackage()
         {
-            AddFunction("not", new FunctionHandle(typeof(Logic).GetMethod("Not", new[] { typeof(bool) })));
+            AddFunction("not", typeof(Logic).GetMethod("Not", new[] { typeof(bool) }));
         }
 
         //private static readonly Random rand = new Random();
