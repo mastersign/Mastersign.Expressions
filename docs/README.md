@@ -44,7 +44,7 @@ static class Program
         // set parameter list
         context.SetParameters(new ParameterInfo("a", typeof(int)));
         // compile the expression into a lamda delegate
-        var function = context.CompileExpression<int>("sin(pi * neg(10 + x)) + a");
+        var function = context.CompileExpression<int, double>("sin(pi * neg(10 + x)) + a");
         // call the delegate and write the result to the console
         Console.WriteLine(function(50));
     }
