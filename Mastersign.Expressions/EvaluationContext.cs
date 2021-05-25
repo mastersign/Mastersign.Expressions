@@ -294,8 +294,6 @@ namespace Mastersign.Expressions
             AddFunction("not", typeof(Logic).GetMethod("Not", new[] { typeof(bool) }));
         }
 
-        //private static readonly Random rand = new Random();
-
         /// <summary>
         /// The static dictionary for random instances: a random instances per thread.
         /// </summary>
