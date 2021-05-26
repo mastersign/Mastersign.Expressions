@@ -22,9 +22,7 @@
 	</ItemGroup>
 	
 	<ItemGroup>
-	  <EmbeddedResource Update="MainForm.resx">
-	    <Generator></Generator>
-	  </EmbeddedResource>
+	  <EmbeddedResource Update="MainForm.resx" />
 	</ItemGroup>
 
 </Project>
