@@ -40,8 +40,9 @@ namespace Mastersign.Expressions.Demo
             this.timer = new System.Windows.Forms.Timer(this.components);
             this.cmbExpr = new System.Windows.Forms.ComboBox();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.display = new Mastersign.Expressions.Demo.Display();
             this.chkParallel = new System.Windows.Forms.CheckBox();
+            this.chkIgnoreCase = new System.Windows.Forms.CheckBox();
+            this.display = new Mastersign.Expressions.Demo.Display();
             this.SuspendLayout();
             // 
             // lblHints
@@ -49,9 +50,9 @@ namespace Mastersign.Expressions.Demo
             this.lblHints.AutoSize = true;
             this.lblHints.Location = new System.Drawing.Point(12, 9);
             this.lblHints.Name = "lblHints";
-            this.lblHints.Size = new System.Drawing.Size(151, 13);
+            this.lblHints.Size = new System.Drawing.Size(160, 13);
             this.lblHints.TabIndex = 1;
-            this.lblHints.Text = "Variables: W, H, X, Y, x, y, T, t";
+            this.lblHints.Text = "Variables: W, H, X, Y, rx, ry, T, rt";
             this.toolTip.SetToolTip(this.lblHints, resources.GetString("lblHints.ToolTip"));
             // 
             // lblMessage
@@ -75,12 +76,12 @@ namespace Mastersign.Expressions.Demo
             | System.Windows.Forms.AnchorStyles.Right)));
             this.cmbExpr.FormattingEnabled = true;
             this.cmbExpr.Items.AddRange(new object[] {
-            "sin((x + t) * pi * 3) * sin((y - t) * pi * 3) * 0.5 + 0.5",
-            "cos((sqrt(x^2 + y^2) + t) * pi * 4) * 0.5 + 0.5",
-            "sin(t * pi * 10) * 0.5 + 0.5",
+            "sin((rx + rt) * pi * 3) * sin((ry - rt) * pi * 3) * 0.5 + 0.5",
+            "cos((sqrt(rx^2 + ry^2) + rt) * pi * 4) * 0.5 + 0.5",
+            "sin(rt * pi * 10) * 0.5 + 0.5",
             "rand()",
             "if(X = 100 or Y = 100, 1, 0)",
-            "if(sqrt(x^2 + y^2) > 0.3, 1, 0)",
+            "if(sqrt(rx^2 + ry^2) > 0.3, 1, 0)",
             "if(mod(X + Y + (T / 50), 50) = 0 or mod(X - Y - (T / 50), 50) = 0, sin(pi * mod(T" +
                 "/500f, 2f)) * 0.5 + 0.5, sin(pi * mod(T/2000f, 2f)) * 0.5 + 0.5)"});
             this.cmbExpr.Location = new System.Drawing.Point(12, 27);
@@ -88,6 +89,29 @@ namespace Mastersign.Expressions.Demo
             this.cmbExpr.Size = new System.Drawing.Size(513, 21);
             this.cmbExpr.TabIndex = 4;
             this.cmbExpr.TextChanged += new System.EventHandler(this.cmbExpr_TextChanged);
+            // 
+            // chkParallel
+            // 
+            this.chkParallel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.chkParallel.AutoSize = true;
+            this.chkParallel.Location = new System.Drawing.Point(446, 8);
+            this.chkParallel.Name = "chkParallel";
+            this.chkParallel.Size = new System.Drawing.Size(78, 17);
+            this.chkParallel.TabIndex = 6;
+            this.chkParallel.Text = "Multithread";
+            this.chkParallel.UseVisualStyleBackColor = true;
+            // 
+            // chkIgnoreCase
+            // 
+            this.chkIgnoreCase.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.chkIgnoreCase.AutoSize = true;
+            this.chkIgnoreCase.Location = new System.Drawing.Point(357, 8);
+            this.chkIgnoreCase.Name = "chkIgnoreCase";
+            this.chkIgnoreCase.Size = new System.Drawing.Size(83, 17);
+            this.chkIgnoreCase.TabIndex = 7;
+            this.chkIgnoreCase.Text = "Ignore Case";
+            this.chkIgnoreCase.UseVisualStyleBackColor = true;
+            this.chkIgnoreCase.CheckedChanged += new System.EventHandler(this.chkIgnoreCase_CheckedChanged);
             // 
             // display
             // 
@@ -102,22 +126,12 @@ namespace Mastersign.Expressions.Demo
             this.display.TabIndex = 5;
             this.display.Resize += new System.EventHandler(this.display_SizeChanged);
             // 
-            // chkParallel
-            // 
-            this.chkParallel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.chkParallel.AutoSize = true;
-            this.chkParallel.Location = new System.Drawing.Point(446, 8);
-            this.chkParallel.Name = "chkParallel";
-            this.chkParallel.Size = new System.Drawing.Size(78, 17);
-            this.chkParallel.TabIndex = 6;
-            this.chkParallel.Text = "Multithread";
-            this.chkParallel.UseVisualStyleBackColor = true;
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(537, 620);
+            this.Controls.Add(this.chkIgnoreCase);
             this.Controls.Add(this.chkParallel);
             this.Controls.Add(this.display);
             this.Controls.Add(this.cmbExpr);
@@ -139,6 +153,7 @@ namespace Mastersign.Expressions.Demo
         private Display display;
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.CheckBox chkParallel;
+        private System.Windows.Forms.CheckBox chkIgnoreCase;
     }
 }
 

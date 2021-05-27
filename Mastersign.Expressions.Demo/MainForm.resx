@@ -125,10 +125,10 @@
 H: height in pixels
 X: position in pixels
 Y: position in pixels
-x: position in range of -0.5 ... +0.5
-y: position in range of -0.5 ... +0.5
+rx: position in range of -0.5 ... +0.5
+ry: position in range of -0.5 ... +0.5
 T: time in milliseconds
-t: periodic time in range of 0.0 ... 1.0</value>
+rt: periodic time in range of 0.0 ... 1.0</value>
   </data>
   <metadata name="timer.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
