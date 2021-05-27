@@ -162,42 +162,80 @@ namespace Mastersign.Expressions.Tests.Language
         [Test]
         public void OperatorTest()
         {
-            ExpectReject(Grammar.AnyOperator,
+            var grammar = new Grammar();
+            ExpectReject(grammar.AnyOperator,
                 " ", "abc", "#", "==", "< >");
 
-            ExpectAccept(Grammar.AnyOperator,
+            ExpectAccept(grammar.AnyOperator,
                 "+", "-", " +", "+ ", "  +  ", "<>");
 
-            Assert.AreEqual(Operator.NumAddition, Parse(Grammar.AnyOperator, "+"));
-            Assert.AreEqual(Operator.NumSubtraction, Parse(Grammar.AnyOperator, "-"));
-            Assert.AreEqual(Operator.NumMultiplication, Parse(Grammar.AnyOperator, "*"));
-            Assert.AreEqual(Operator.NumDivision, Parse(Grammar.AnyOperator, "/"));
-            Assert.AreEqual(Operator.NumPower, Parse(Grammar.AnyOperator, "^"));
+            Assert.AreEqual(Operator.NumAddition, Parse(grammar.AnyOperator, "+"));
+            Assert.AreEqual(Operator.NumSubtraction, Parse(grammar.AnyOperator, "-"));
+            Assert.AreEqual(Operator.NumMultiplication, Parse(grammar.AnyOperator, "*"));
+            Assert.AreEqual(Operator.NumDivision, Parse(grammar.AnyOperator, "/"));
+            Assert.AreEqual(Operator.NumPower, Parse(grammar.AnyOperator, "^"));
 
-            Assert.AreEqual(Operator.BoolAnd, Parse(Grammar.AnyOperator, "and"));
-            Assert.AreEqual(Operator.BoolOr, Parse(Grammar.AnyOperator, "or"));
-            Assert.AreEqual(Operator.BoolXor, Parse(Grammar.AnyOperator, "xor"));
+            Assert.AreEqual(Operator.BoolAnd, Parse(grammar.AnyOperator, "and"));
+            Assert.AreEqual(Operator.BoolOr, Parse(grammar.AnyOperator, "or"));
+            Assert.AreEqual(Operator.BoolXor, Parse(grammar.AnyOperator, "xor"));
 
-            Assert.AreEqual(Operator.StringConcat, Parse(Grammar.AnyOperator, "&"));
+            Assert.AreEqual(Operator.StringConcat, Parse(grammar.AnyOperator, "&"));
 
-            Assert.AreEqual(Operator.RelationLess, Parse(Grammar.AnyOperator, "<"));
-            Assert.AreEqual(Operator.RelationLessOrEqual, Parse(Grammar.AnyOperator, "<="));
-            Assert.AreEqual(Operator.RelationEqual, Parse(Grammar.AnyOperator, "="));
-            Assert.AreEqual(Operator.RelationUnequal, Parse(Grammar.AnyOperator, "<>"));
-            Assert.AreEqual(Operator.RelationGreaterOrEqual, Parse(Grammar.AnyOperator, ">="));
-            Assert.AreEqual(Operator.RelationGreater, Parse(Grammar.AnyOperator, ">"));
+            Assert.AreEqual(Operator.RelationLess, Parse(grammar.AnyOperator, "<"));
+            Assert.AreEqual(Operator.RelationLessOrEqual, Parse(grammar.AnyOperator, "<="));
+            Assert.AreEqual(Operator.RelationEqual, Parse(grammar.AnyOperator, "="));
+            Assert.AreEqual(Operator.RelationUnequal, Parse(grammar.AnyOperator, "<>"));
+            Assert.AreEqual(Operator.RelationGreaterOrEqual, Parse(grammar.AnyOperator, ">="));
+            Assert.AreEqual(Operator.RelationGreater, Parse(grammar.AnyOperator, ">"));
+        }
+
+        [Test]
+        public void OperatorCasingTest()
+        {
+            var grammar = new Grammar();
+            ExpectAccept(grammar.AnyOperator, "and", "or", "xor");
+            ExpectReject(grammar.AnyOperator, "And", "Or", "Xor");
+            ExpectReject(grammar.AnyOperator, "AND", "OR", "XOR");
+        }
+
+        [Test]
+        public void OperatorIgnoreCasingTest()
+        {
+            var grammar = new Grammar { IgnoreOperatorCase = true };
+            ExpectAccept(grammar.AnyOperator, "and", "or", "xor");
+            ExpectAccept(grammar.AnyOperator, "And", "Or", "Xor");
+            ExpectAccept(grammar.AnyOperator, "AND", "OR", "XOR");
         }
 
         [Test]
         public void NullLiteralTest()
         {
-            ExpectReject(Grammar.NullLiteral,
+            var grammar = new Grammar();
+            ExpectReject(grammar.NullLiteral,
                 " ", "n", "0", "NULL");
 
-            ExpectAccept(Grammar.NullLiteral,
+            ExpectAccept(grammar.NullLiteral,
                 "null", " null", "null ", "\tnull ");
 
             ExpectResult("null", typeof(object), null);
+        }
+
+        [Test]
+        public void NullLiteralCasingTest()
+        {
+            var grammar = new Grammar();
+            ExpectAccept(grammar.NullLiteral, "null");
+            ExpectReject(grammar.NullLiteral, "Null");
+            ExpectReject(grammar.NullLiteral, "NULL");
+        }
+
+        [Test]
+        public void NullLiteralIgnoreCasingTest()
+        {
+            var grammar = new Grammar { IgnoreLiteralCase = true };
+            ExpectAccept(grammar.NullLiteral, "null");
+            ExpectAccept(grammar.NullLiteral, "Null");
+            ExpectAccept(grammar.NullLiteral, "NULL");
         }
 
         [Test]
@@ -307,19 +345,38 @@ namespace Mastersign.Expressions.Tests.Language
         [Test]
         public void BooleanTest()
         {
-            ExpectReject(Grammar.BooleanLiteral,
+            var grammar = new Grammar();
+            ExpectReject(grammar.BooleanLiteral,
                 "", " ", "0", "1", "t", "f");
 
-            ExpectAccept(Grammar.BooleanLiteral,
+            ExpectAccept(grammar.BooleanLiteral,
                 "true", "false");
 
             var context = new EvaluationContext();
 
-            Assert.AreEqual(true, Parse(Grammar.BooleanLiteral, "true").GetValue(context));
-            Assert.AreEqual(false, Parse(Grammar.BooleanLiteral, "false").GetValue(context));
+            Assert.AreEqual(true, Parse(grammar.BooleanLiteral, "true").GetValue(context));
+            Assert.AreEqual(false, Parse(grammar.BooleanLiteral, "false").GetValue(context));
 
-            var res = Parse(Grammar.BooleanLiteral, "true");
+            var res = Parse(grammar.BooleanLiteral, "true");
             Assert.IsTrue(res.CheckSemantic(context, new StringBuilder()));
+        }
+
+        [Test]
+        public void BooleanCasingTest()
+        {
+            var grammar = new Grammar();
+            ExpectAccept(grammar.BooleanLiteral, "true", "false");
+            ExpectReject(grammar.BooleanLiteral, "True", "False");
+            ExpectReject(grammar.BooleanLiteral, "TRUE", "FALSE");
+        }
+
+        [Test]
+        public void BooleanIgnoreCasingTest()
+        {
+            var grammar = new Grammar { IgnoreLiteralCase = true };
+            ExpectAccept(grammar.BooleanLiteral, "true", "false");
+            ExpectAccept(grammar.BooleanLiteral, "True", "False");
+            ExpectAccept(grammar.BooleanLiteral, "TRUE", "FALSE");
         }
 
         [Test]
@@ -596,6 +653,49 @@ namespace Mastersign.Expressions.Tests.Language
         }
 
         [Test]
+        public void ParameterCasingTest()
+        {
+            var context = new EvaluationContext();
+            context.SetParameters(
+                new ParameterInfo("a", typeof(int)),
+                new ParameterInfo("B", typeof(string)));
+
+            var fA = context.CompileExpression<int, string, int>("a");
+            Assert.AreEqual(42, fA(42, "test"));
+
+            var fB = context.CompileExpression<int, string, string>("B");
+            Assert.AreEqual("test", fB(42, "test"));
+
+            Assert.Throws(typeof(SemanticErrorException), () =>
+            {
+                context.CompileExpression("A");
+            });
+            Assert.Throws(typeof(SemanticErrorException), () =>
+            {
+                context.CompileExpression("b");
+            });
+        }
+
+        [Test]
+        public void ParameterIgnoreCasingText()
+        {
+            var context = new EvaluationContext { IgnoreParameterNameCase = true };
+            context.SetParameters(
+                new ParameterInfo("a", typeof(int)),
+                new ParameterInfo("B", typeof(string)));
+
+            var fA1 = context.CompileExpression<int, string, int>("a");
+            Assert.AreEqual(42, fA1(42, "test"));
+            var fA2 = context.CompileExpression<int, string, int>("A");
+            Assert.AreEqual(42, fA2(42, "test"));
+
+            var fB1 = context.CompileExpression<int, string, string>("B");
+            Assert.AreEqual("test", fB1(42, "test"));
+            var fB2 = context.CompileExpression<int, string, string>("b");
+            Assert.AreEqual("test", fB2(42, "test"));
+        }
+
+        [Test]
         public void ExpressionTest()
         {
             var context = new EvaluationContext();
@@ -679,13 +779,13 @@ namespace Mastersign.Expressions.Tests.Language
 
             var context = new EvaluationContext();
             context.SetVariable("π", Math.PI);
-            context.SetVariable("wrappedString", new WrappedString("Hello!"));
+            //context.SetVariable("wrappedString", new WrappedString("Hello!"));
             context.AddFunction("sin", new FunctionHandle((Func<double, double>)Math.Sin));
-            //context.AddFunction("x2", new FunctionHandle((Func<decimal, decimal>)(v => v * 2m)));
             context.AddFunction("min", new FunctionHandle((Func<int, int, int>)Math.Min));
             context.AddFunction("min", new FunctionHandle((Func<string, string, string>)Strings.Min));
+            //context.AddFunction("x2", new FunctionHandle((Func<decimal, decimal>)(v => v * 2m)));
             //context.AddFunction("rev", new FunctionHandle((Func<string, string>)(s => new string(s.Reverse().ToArray()))));
-            //context.AddFunction("if", new FunctionHandle(GetType().GetMethod("If")));
+            //context.AddFunction("test_if", new FunctionHandle(GetType().GetMethod("If")));
 
             ExpectResult(context, "sin(π)", typeof(double), Math.Sin(Math.PI)); // complete match
             ExpectResult(context, "min(100, 42)", typeof(int), Math.Min(100, 42));
@@ -694,13 +794,63 @@ namespace Mastersign.Expressions.Tests.Language
 
             //ExpectResult(context, "x2(4)", typeof(decimal), 4 * 2m); // implicit numeric cast from int to decimal
             //ExpectResult(context, "rev(wrappedString)", typeof(string), new string("implicit(Hello!)".Reverse().ToArray())); // overloaded implicit cast operator
-            //ExpectResult(context, "if(4 < 5, \"Yes\", \"No\")", typeof (string), "Yes"); // generic method binding
+            //ExpectResult(context, "test_if(4 < 5, \"Yes\", \"No\")", typeof (string), "Yes"); // generic method binding
 
             ExpectError(context, "foo(π)"); // not existing function
 
             ExpectError(context, "sin(true)"); // wrong parameter type
             ExpectError(context, "sin()"); // too few parameter
             ExpectError(context, "sin(pi, 2)"); // too many parameter
+        }
+
+        [Test]
+        public void FunctionCasingTest()
+        {
+            var context = new EvaluationContext();
+            context.AddFunction("test", new FunctionHandle((Func<int, int>)(a => a * 2)));
+            context.AddFunction("Test", new FunctionHandle((Func<int, int>)(a => a * 3)));
+            context.AddFunction("TEST", new FunctionHandle((Func<int, int>)(a => a * 4)));
+
+            ExpectResult(context, "test(10)", typeof(int), 20);
+            ExpectResult(context, "Test(10)", typeof(int), 30);
+            ExpectResult(context, "TEST(10)", typeof(int), 40);
+            ExpectError(context, "tESt(10)");
+        }
+
+        [Test]
+        public void FunctionIgnoreCasingTest()
+        {
+            var context = new EvaluationContext { IgnoreFunctionNameCase = true };
+            context.AddFunction("test", new FunctionHandle((Func<int, int>)(a => a * 2)));
+
+            ExpectResult(context, "test(10)", typeof(int), 20);
+            ExpectResult(context, "Test(10)", typeof(int), 20);
+            ExpectResult(context, "TEST(10)", typeof(int), 20);
+            ExpectResult(context, "tESt(10)", typeof(int), 20);
+        }
+
+        [Test]
+        public void FunctionLateIgnoreCasingTest()
+        {
+            var context = new EvaluationContext();
+            context.AddFunction("test", new FunctionHandle((Func<int, int>)(a => a * 2)));
+
+            context.IgnoreFunctionNameCase = true;
+
+            ExpectResult(context, "test(10)", typeof(int), 20);
+            ExpectResult(context, "Test(10)", typeof(int), 20);
+            ExpectResult(context, "TEST(10)", typeof(int), 20);
+            ExpectResult(context, "tESt(10)", typeof(int), 20);
+        }
+
+        [Test]
+        public void AmbigousFunctionTest()
+        {
+            var context = new EvaluationContext();
+            context.AddFunction("twice", new FunctionHandle((Func<string>)(() => "One")));
+            context.AddFunction("twice", new FunctionHandle((Func<string>)(() => "Two")));
+
+            ExpectError("twice()");
         }
 
         [Test]
@@ -732,6 +882,22 @@ namespace Mastersign.Expressions.Tests.Language
             // wrapped semantic errors
             ExpectError(context, Conditional.FUNCTION_NAME + "(not_exist(), a, b)"); // invalid function call as parameter
             ExpectError(context, Conditional.FUNCTION_NAME + "(true, not_exist(), x)"); // invalid function call as parameter
+        }
+
+        [Test]
+        public void ConditionalCasingTest()
+        {
+            var context = new EvaluationContext();
+            ExpectResult(context, Conditional.FUNCTION_NAME + "(true, 1, 2)", typeof(int), 1);
+            ExpectError(context, Conditional.FUNCTION_NAME.ToUpperInvariant() + "(true, 1, 2)");
+        }
+
+        [Test]
+        public void ConditionalIgnoreCasingTest()
+        {
+            var context = new EvaluationContext { IgnoreFunctionNameCase = true };
+            ExpectResult(context, Conditional.FUNCTION_NAME + "(true, 1, 2)", typeof(int), 1);
+            ExpectResult(context, Conditional.FUNCTION_NAME.ToUpperInvariant() + "(true, 1, 2)", typeof(int), 1);
         }
 
         [Test]

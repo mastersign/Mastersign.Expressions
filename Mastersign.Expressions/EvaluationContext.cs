@@ -1,13 +1,13 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
-using System.Linq;
-using System.Collections.Generic;
-using System;
 using System.Text.RegularExpressions;
 using System.Threading;
-using Sprache;
-using Mastersign.Expressions.Language;
 using Mastersign.Expressions.Functions;
+using Mastersign.Expressions.Language;
+using Sprache;
 
 namespace Mastersign.Expressions
 {
@@ -41,6 +41,7 @@ namespace Mastersign.Expressions
         public EvaluationContext()
         {
             this.parent = null;
+            InitializeLookupTables();
         }
 
         /// <summary>
@@ -52,11 +53,32 @@ namespace Mastersign.Expressions
         public EvaluationContext(EvaluationContext parent)
         {
             this.parent = parent;
+            InitializeLookupTables();
+        }
+
+        private void InitializeLookupTables()
+        {
+            InitializeVariableLookupTable();
+            InitializeFunctionLookupTable();
+            InitializeParameterLookup();
         }
 
         #region Variables
 
-        private readonly Dictionary<string, Tuple<object, bool>> variables = new Dictionary<string, Tuple<object, bool>>();
+        private readonly List<KeyValuePair<string, Tuple<object, bool>>> variableList = new();
+        private Dictionary<string, Tuple<object, bool>> variableLookup;
+
+        private void InitializeVariableLookupTable()
+        {
+            variableLookup = new Dictionary<string, Tuple<object, bool>>(
+                IgnoreVariableNameCase
+                    ? StringComparer.InvariantCultureIgnoreCase
+                    : StringComparer.InvariantCulture);
+            foreach (var variable in variableList)
+            {
+                SetVariable(variable);
+            }
+        }
 
         /// <summary>
         /// Sets the value for a variable or constant.
@@ -70,17 +92,31 @@ namespace Mastersign.Expressions
         /// </param>
         public void SetVariable(string name, object value, bool asConst = false)
         {
-            if (Grammar.Keywords.Contains(name)) throw new ArgumentException("The given variable name is a language keyword.");
-            variables[name] = Tuple.Create(value, asConst);
+            if (Grammar.IsLiteralKeyword(name)) throw new ArgumentException("The given variable name is a language literal keyword.");
+            if (Grammar.IsOperatorKeyword(name)) throw new ArgumentException("The given variable name is a language operator keyword.");
+            var kvp = new KeyValuePair<string, Tuple<object, bool>>(name, Tuple.Create(value, asConst));
+            variableList.Add(kvp);
+            SetVariable(kvp);
+        }
+
+        private void SetVariable(KeyValuePair<string, Tuple<object, bool>> variable)
+        {
+            variableLookup[variable.Key] = variable.Value;
         }
 
         /// <summary>
         /// Removes a variable or constant from the context.
         /// </summary>
+        /// <remarks>
+        /// The case of the variable name must be identical to the one
+        /// used when calling <see cref="SetVariable(string, object, bool)"/>,
+        /// regardless of the state of <see cref="IgnoreVariableNameCase"/>.
+        /// </remarks>
         /// <param name="name">The name of the variable.</param>
         public void RemoveVariable(string name)
         {
-            variables.Remove(name);
+
+            variableLookup.Remove(name);
         }
 
         /// <summary>
@@ -90,7 +126,7 @@ namespace Mastersign.Expressions
         /// <returns><c>true</c>, if the variable or constant exists; otherwise <c>false</c>.</returns>
         public bool VariableExists(string name)
         {
-            return variables.ContainsKey(name)
+            return variableLookup.ContainsKey(name)
                 || (parent != null && parent.VariableExists(name));
         }
 
@@ -106,7 +142,7 @@ namespace Mastersign.Expressions
                 throw new ArgumentException("Variable does not exists.", "name");
             }
             Tuple<object, bool> variable;
-            return variables.TryGetValue(name, out variable)
+            return variableLookup.TryGetValue(name, out variable)
                 ? variable.Item1
                 : parent.ReadVariable(name);
         }
@@ -124,7 +160,7 @@ namespace Mastersign.Expressions
                 throw new ArgumentException("Variable does not exists.", "name");
             }
             Tuple<object, bool> variable;
-            return variables.TryGetValue(name, out variable)
+            return variableLookup.TryGetValue(name, out variable)
                 ? variable.Item2
                 : parent.IsVariableConstant(name);
         }
@@ -133,8 +169,19 @@ namespace Mastersign.Expressions
 
         #region Functions
 
-        private readonly Dictionary<string, FunctionGroup> functionGroups
-            = new Dictionary<string, FunctionGroup>();
+        private readonly List<KeyValuePair<string, FunctionHandle>> functionList = new();
+        private Dictionary<string, FunctionGroup> functionGroupLookup;
+
+        private void InitializeFunctionLookupTable()
+        {
+            functionGroupLookup = IgnoreFunctionNameCase
+                ? new Dictionary<string, FunctionGroup>(StringComparer.InvariantCultureIgnoreCase)
+                : new Dictionary<string, FunctionGroup>(StringComparer.InvariantCulture);
+            foreach (var function in functionList)
+            {
+                AddFunction(function);
+            }
+        }
 
         /// <summary>
         /// Adds a group of functions to the context.
@@ -143,25 +190,34 @@ namespace Mastersign.Expressions
         /// <param name="functionGroup">The group of functions.</param>
         public void AddFunctionGroup(string identifier, FunctionGroup functionGroup)
         {
-            functionGroups.Add(identifier, functionGroup);
+            foreach (var function in functionGroup)
+            {
+                AddFunction(new KeyValuePair<string, FunctionHandle>(identifier, function));
+            }
         }
 
         /// <summary>
         /// Adds a single function to the context. If there are functions allready registered under the given 
         /// function name, the new function will be added to the function group.
-        /// given name
         /// </summary>
         /// <param name="identifier">The function name.</param>
         /// <param name="function">The function.</param>
         public void AddFunction(string identifier, FunctionHandle function)
         {
+            var kvp = new KeyValuePair<string, FunctionHandle>(identifier, function);
+            functionList.Add(kvp);
+            AddFunction(kvp);
+        }
+
+        private void AddFunction(KeyValuePair<string, FunctionHandle> function)
+        {
             FunctionGroup group;
-            if (!functionGroups.TryGetValue(identifier, out group))
+            if (!functionGroupLookup.TryGetValue(function.Key, out group))
             {
                 group = new FunctionGroup();
-                functionGroups.Add(identifier, group);
+                functionGroupLookup.Add(function.Key, group);
             }
-            group.Add(function);
+            group.Add(function.Value);
         }
 
         /// <summary>
@@ -170,7 +226,11 @@ namespace Mastersign.Expressions
         /// <param name="identifier">The function name.</param>
         public void RemoveFunctionGroup(string identifier)
         {
-            functionGroups.Remove(identifier);
+            functionList.RemoveAll(kvp => string.Equals(kvp.Key, identifier,
+                    IgnoreFunctionNameCase
+                        ? StringComparison.InvariantCultureIgnoreCase
+                        : StringComparison.InvariantCulture));
+            functionGroupLookup.Remove(identifier);
         }
 
         /// <summary>
@@ -180,7 +240,7 @@ namespace Mastersign.Expressions
         /// <returns><c>true</c>, if a function group is registered with the given name; otherwise <c>false</c>.</returns>
         public bool FunctionGroupExists(string identifier)
         {
-            return functionGroups.ContainsKey(identifier)
+            return functionGroupLookup.ContainsKey(identifier)
                 || (parent != null && parent.FunctionGroupExists(identifier));
         }
 
@@ -192,7 +252,7 @@ namespace Mastersign.Expressions
         public FunctionGroup GetFunctionGroup(string identifier)
         {
             FunctionGroup group;
-            return functionGroups.TryGetValue(identifier, out group)
+            return functionGroupLookup.TryGetValue(identifier, out group)
                 ? group
                 : (parent != null ? parent.GetFunctionGroup(identifier) : null);
         }
@@ -202,6 +262,19 @@ namespace Mastersign.Expressions
         #region Parameters
 
         private ParameterInfo[] parameterList = new ParameterInfo[0];
+        private Dictionary<string, Tuple<ParameterInfo, int>> parameterLookup;
+
+        private void InitializeParameterLookup()
+        {
+            parameterLookup = new Dictionary<string, Tuple<ParameterInfo, int>>(
+                IgnoreParameterNameCase
+                    ? StringComparer.InvariantCultureIgnoreCase
+                    : StringComparer.InvariantCulture);
+            for (int i = 0; i < parameterList.Length; i++)
+            {
+                parameterLookup[parameterList[i].Name] = Tuple.Create(parameterList[i], i);
+            }
+        }
 
         /// <summary>
         /// Sets the parameter list for the evaluation.
@@ -210,6 +283,7 @@ namespace Mastersign.Expressions
         public void SetParameters(IEnumerable<ParameterInfo> parameters)
         {
             parameterList = parameters != null ? parameters.ToArray() : new ParameterInfo[0];
+            InitializeParameterLookup();
         }
 
         /// <summary>
@@ -219,6 +293,7 @@ namespace Mastersign.Expressions
         public void SetParameters(params ParameterInfo[] parameters)
         {
             parameterList = parameters ?? new ParameterInfo[0];
+            InitializeParameterLookup();
         }
 
         /// <summary>
@@ -230,7 +305,7 @@ namespace Mastersign.Expressions
         /// otherwise <c>false</c>.</returns>
         public bool ParameterExists(string name)
         {
-            return parameterList.Any(p => p.Name.Equals(name));
+            return parameterLookup.ContainsKey(name);
         }
 
         /// <summary>
@@ -238,11 +313,13 @@ namespace Mastersign.Expressions
         /// </summary>
         /// <param name="name">The name of the parameter.</param>
         /// <returns>The parameter description.</returns>
-        /// <exception cref="InvalidOperationException">Is thrown, 
+        /// <exception cref="KeyNotFoundException">Is thrown, 
         /// if no parameter labeled <paramref name="name"/> exists.</exception>
         public ParameterInfo GetParameter(string name)
         {
-            return parameterList.First(p => p.Name.Equals(name));
+            return parameterLookup.TryGetValue(name, out var t)
+                ? t.Item1
+                : throw new KeyNotFoundException("The given parameter name does not exist.");
         }
 
         /// <summary>
@@ -255,11 +332,9 @@ namespace Mastersign.Expressions
         /// if no parameter labeled <paramref name="name"/> exists.</exception>
         public int GetParameterPosition(string name)
         {
-            for (var i = 0; i < parameterList.Length; i++)
-            {
-                if (parameterList[i].Name.Equals(name)) return i;
-            }
-            throw new InvalidOperationException("The given parameter name does not exist.");
+            return parameterLookup.TryGetValue(name, out var t)
+                ? t.Item2
+                : throw new KeyNotFoundException("The given parameter name does not exist.");
         }
 
         /// <summary>
@@ -648,6 +723,83 @@ namespace Mastersign.Expressions
                 grammar.Capabilities = value;
                 cachedParser = null;
             }
+        }
+
+        /// <summary>
+        /// A switch to ignore the case of operator keywords like <c>or</c> and <c>xor</c>.
+        /// </summary>
+        public bool IgnoreOperatorCase
+        {
+            get => grammar.IgnoreOperatorCase;
+            set => grammar.IgnoreOperatorCase = value;
+        }
+
+        /// <summary>
+        /// A switch to ignore the case of literal keywords like <c>true</c> and <c>null</c>.
+        /// </summary>
+        public bool IgnoreLiteralCase
+        {
+            get => grammar.IgnoreLiteralCase;
+            set => grammar.IgnoreLiteralCase = value;
+        }
+
+        private bool ignoreVariableNameCase;
+
+        /// <summary>
+        /// A switch to ignore the case of variable names.
+        /// </summary>
+        public bool IgnoreVariableNameCase
+        {
+            get => ignoreVariableNameCase;
+            set
+            {
+                if (ignoreVariableNameCase == value) return;
+                ignoreVariableNameCase = value;
+                InitializeVariableLookupTable();
+            }
+        }
+
+        /// <summary>
+        /// A switch to ignore the case of function names.
+        /// </summary>
+        public bool IgnoreFunctionNameCase
+        {
+            get => grammar.IgnoreFunctionCase;
+            set
+            {
+                if (grammar.IgnoreFunctionCase == value) return;
+                grammar.IgnoreFunctionCase = value;
+                InitializeFunctionLookupTable();
+            }
+        }
+
+        private bool ignoreParameterNameCase;
+
+        /// <summary>
+        /// A switch to ignore the case of parameter names.
+        /// </summary>
+        public bool IgnoreParameterNameCase
+        {
+            get => ignoreParameterNameCase;
+            set
+            {
+                if (ignoreParameterNameCase == value) return;
+                ignoreParameterNameCase = value;
+                InitializeParameterLookup();
+            }
+        }
+
+        /// <summary>
+        /// Sets all switches for ignoring case.
+        /// </summary>
+        /// <param name="ignoreCase"><c>true</c> if the case of input can be ignored; otherwise <c>false</c>.</param>
+        public void SetIgnoreCase(bool ignoreCase)
+        {
+            IgnoreOperatorCase = ignoreCase;
+            IgnoreLiteralCase = ignoreCase;
+            IgnoreVariableNameCase = ignoreCase;
+            IgnoreParameterNameCase = ignoreCase;
+            IgnoreFunctionNameCase = ignoreCase;
         }
 
         private Parser<ExpressionElement> cachedParser;
