@@ -14,6 +14,6 @@ dotnet add package Mastersign.Expressions
 
 ## License
 
-This project ist published under the MIT license.
+This project is published under the MIT license.
 
 Copyright &copy; by Tobias Kiertscher <dev@mastersign.de>
