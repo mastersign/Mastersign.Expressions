@@ -15,6 +15,8 @@ It supports numeric, boolean and string literals, operators for numeric operatio
 
 Mastersign.Expressions comes with a set of predefined functions for math, string manipulation and regular expressions. For detailed description, see [Packages](Packages.md).
 
+The evaluation context can be configured to ignore the case of operator keywords, literal keywords, variables, parameters, and function names.
+
 ## Expression Examples
 
 * `1 + 2`
