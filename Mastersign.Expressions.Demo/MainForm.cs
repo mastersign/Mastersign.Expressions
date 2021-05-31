@@ -14,7 +14,7 @@ namespace Mastersign.Expressions.Demo
 {
     public partial class MainForm : Form
     {
-        private readonly EvaluationContext evalContext = new EvaluationContext(EvaluationContext.Default);
+        private readonly EvaluationContext evalContext = new EvaluationContext();
         private Func<int, int, double, double, double> f;
 
         private ColorPalette bwPalette;
@@ -26,11 +26,12 @@ namespace Mastersign.Expressions.Demo
         {
             InitializeComponent();
             InitializeBackbuffer();
+            evalContext.LoadAllPackages();
             evalContext.SetParameters(
                 new ParameterInfo("X", typeof(int)),
                 new ParameterInfo("Y", typeof(int)),
-                new ParameterInfo("x", typeof(double)),
-                new ParameterInfo("y", typeof(double)));
+                new ParameterInfo("rx", typeof(double)),
+                new ParameterInfo("ry", typeof(double)));
             watch.Start();
             UpdateContext();
             CompileFunction();
@@ -43,6 +44,12 @@ namespace Mastersign.Expressions.Demo
         }
 
         private void cmbExpr_TextChanged(object sender, EventArgs e)
+        {
+            CompileFunction();
+            RepaintCanvas();
+        }
+
+        private void chkIgnoreCase_CheckedChanged(object sender, EventArgs e)
         {
             CompileFunction();
             RepaintCanvas();
@@ -85,6 +92,7 @@ namespace Mastersign.Expressions.Demo
                 cmbExpr.BackColor = SystemColors.Window;
                 expr = "0";
             }
+            evalContext.SetIgnoreCase(chkIgnoreCase.Checked);
             try
             {
                 f = evalContext.CompileExpression<int, int, double, double, double>(expr);
@@ -112,7 +120,7 @@ namespace Mastersign.Expressions.Demo
             var t = Environment.TickCount;
             evalContext.SetVariable("T", t);
             var phase = (t % 10000) / 10000.0;
-            evalContext.SetVariable("t", phase);
+            evalContext.SetVariable("rt", phase);
         }
 
         private void RepaintCanvas()

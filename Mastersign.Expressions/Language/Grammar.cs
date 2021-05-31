@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Sprache;
 using Mastersign.MiniMods.Chain;
+using Sprache;
 
 namespace Mastersign.Expressions.Language
 {
@@ -11,11 +10,9 @@ namespace Mastersign.Expressions.Language
     {
         #region static parts
 
-        public static string[] Keywords = new[] { "true", "false", "and", "or", "xor", "null" };
+        public static string[] LiteralKeywords = new[] { "true", "false", "null" };
 
-        public static readonly Parser<NullLiteral> NullLiteral =
-            from src in Parse.String("null").Token().Text()
-            select new NullLiteral(src);
+        public static string[] OperatorKeywords = new[] { "and", "or", "xor" };
 
         private static Parser<string> Suffix(char c)
         {
@@ -68,10 +65,6 @@ namespace Mastersign.Expressions.Language
         public static readonly Parser<DecimalLiteral> DecimalLiteral =
             from number in FloatingPoint.Concat(Suffix('m')).Text().Token()
             select new DecimalLiteral(number);
-
-        public static readonly Parser<BooleanLiteral> BooleanLiteral =
-            from value in Parse.String("true").Or(Parse.String("false")).Token().Text()
-            select new BooleanLiteral(value);
 
         private static readonly Parser<StringLiteral> emptyString =
             from text in Parse.String("\"\"").Text()
@@ -143,9 +136,11 @@ namespace Mastersign.Expressions.Language
             from rightParts in MemberReadRight.Many()
             select rightParts;
 
-        private static Parser<Operator> BuildOpParser(string text, Operator op)
+        private static Parser<Operator> BuildOpParser(string text, Operator op, bool ignoreCase = false)
         {
-            return Parse.String(text).Token().Return(op);
+            return ignoreCase
+                ? Parse.IgnoreCase(text).Token().Return(op)
+                : Parse.String(text).Token().Return(op);
         }
 
         public static readonly Parser<Operator> NumAdditionOp = BuildOpParser("+", Operator.NumAddition);
@@ -153,10 +148,6 @@ namespace Mastersign.Expressions.Language
         public static readonly Parser<Operator> NumMultiplicationOp = BuildOpParser("*", Operator.NumMultiplication);
         public static readonly Parser<Operator> NumDivisionOp = BuildOpParser("/", Operator.NumDivision);
         public static readonly Parser<Operator> NumPowerOp = BuildOpParser("^", Operator.NumPower);
-
-        public static readonly Parser<Operator> BoolAndOp = BuildOpParser("and", Operator.BoolAnd);
-        public static readonly Parser<Operator> BoolOrOp = BuildOpParser("or", Operator.BoolOr);
-        public static readonly Parser<Operator> BoolXorOp = BuildOpParser("xor", Operator.BoolXor);
 
         public static readonly Parser<Operator> StringConcatOp = BuildOpParser("&", Operator.StringConcat);
 
@@ -166,24 +157,6 @@ namespace Mastersign.Expressions.Language
         public static readonly Parser<Operator> RelUnequalOp = BuildOpParser("<>", Operator.RelationUnequal);
         public static readonly Parser<Operator> RelGreaterOrEqualOp = BuildOpParser(">=", Operator.RelationGreaterOrEqual);
         public static readonly Parser<Operator> RelGreaterOp = BuildOpParser(">", Operator.RelationGreater);
-
-        public static readonly Parser<Operator> AnyOperator =
-            from op in NumAdditionOp
-                .Or(NumSubtractionOp)
-                .Or(NumMultiplicationOp)
-                .Or(NumDivisionOp)
-                .Or(NumPowerOp)
-                .Or(BoolAndOp)
-                .Or(BoolOrOp)
-                .Or(BoolXorOp)
-                .Or(StringConcatOp)
-                .Or(RelEqualOp)
-                .Or(RelUnequalOp)
-                .Or(RelLessOrEqualOp)
-                .Or(RelLessOp)
-                .Or(RelGreaterOrEqualOp)
-                .Or(RelGreaterOp)
-            select op;
 
         private static Operation OperationBuilder(Operator op, ExpressionElement l, ExpressionElement r)
         {
@@ -198,11 +171,101 @@ namespace Mastersign.Expressions.Language
 
         public LanguageCapabilities Capabilities { get; set; }
 
+        private bool ignoreOperatorCase;
+        public bool IgnoreOperatorCase
+        {
+            get { return ignoreOperatorCase; }
+            set
+            {
+                if (ignoreOperatorCase == value) return;
+                ignoreOperatorCase = value;
+                UpdateConfigurationDependentTokens();
+            }
+        }
+
+        public bool ignoreLiteralCase;
+        public bool IgnoreLiteralCase
+        {
+            get { return ignoreLiteralCase; }
+            set
+            {
+                if (ignoreLiteralCase == value) return;
+                ignoreLiteralCase = value;
+                UpdateConfigurationDependentTokens();
+            }
+        }
+
+        public bool IgnoreFunctionCase { get; set; }
+
+        #endregion
+
+        #region configuration dependend tokens
+
+        public Parser<BooleanLiteral> BooleanLiteral;
+        public Parser<NullLiteral> NullLiteral;
+
+        public Parser<Operator> BoolAndOp;
+        public Parser<Operator> BoolOrOp;
+        public Parser<Operator> BoolXorOp;
+
+        public Parser<Operator> AnyOperator;
+
+        private void UpdateConfigurationDependentTokens()
+        {
+            BooleanLiteral = IgnoreLiteralCase
+                ? from value in Parse.IgnoreCase("true").Or(Parse.IgnoreCase("false")).Token().Text()
+                  select new BooleanLiteral(value.ToLowerInvariant())
+                : from value in Parse.String("true").Or(Parse.String("false")).Token().Text()
+                  select new BooleanLiteral(value);
+
+            NullLiteral = IgnoreLiteralCase
+                ? from src in Parse.IgnoreCase("null").Token().Text()
+                  select new NullLiteral(src.ToLowerInvariant())
+                : from src in Parse.String("null").Token().Text()
+                  select new NullLiteral(src);
+
+            BoolAndOp = BuildOpParser("and", Operator.BoolAnd, IgnoreOperatorCase);
+            BoolOrOp = BuildOpParser("or", Operator.BoolOr, IgnoreOperatorCase);
+            BoolXorOp = BuildOpParser("xor", Operator.BoolXor, IgnoreOperatorCase);
+            AnyOperator =
+                from op in NumAdditionOp
+                    .Or(NumSubtractionOp)
+                    .Or(NumMultiplicationOp)
+                    .Or(NumDivisionOp)
+                    .Or(NumPowerOp)
+                    .Or(BoolAndOp)
+                    .Or(BoolOrOp)
+                    .Or(BoolXorOp)
+                    .Or(StringConcatOp)
+                    .Or(RelEqualOp)
+                    .Or(RelUnequalOp)
+                    .Or(RelLessOrEqualOp)
+                    .Or(RelLessOp)
+                    .Or(RelGreaterOrEqualOp)
+                    .Or(RelGreaterOp)
+                select op;
+        }
+
+        public bool IsLiteralKeyword(string word)
+        {
+            return LiteralKeywords.Contains(word, IgnoreLiteralCase
+                ? StringComparer.InvariantCultureIgnoreCase
+                : StringComparer.InvariantCulture);
+        }
+
+        public bool IsOperatorKeyword(string word)
+        {
+            return OperatorKeywords.Contains(word, IgnoreOperatorCase
+                ? StringComparer.InvariantCultureIgnoreCase
+                : StringComparer.InvariantCulture);
+        }
+
         #endregion
 
         public Grammar()
         {
             Capabilities = LanguageCapabilities.Basic;
+            UpdateConfigurationDependentTokens();
         }
 
         public Parser<Group> Group
@@ -237,9 +300,8 @@ namespace Mastersign.Expressions.Language
             {
                 return
                     from call in
-                        (
-                            from identifier in Identifier.Token()
-                            select Language.FunctionCall.CreateInstance(identifier))
+                        (from identifier in Identifier.Token()
+                         select Language.FunctionCall.CreateInstance(identifier, IgnoreFunctionCase))
                     from lPar in Parse.Char('(')
                     from parameters in ExpressionList
                         .Or(Parse.WhiteSpace.Many().Return(Chain<ExpressionElement>.Empty))

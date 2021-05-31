@@ -8,8 +8,9 @@ namespace Mastersign.Expressions.Language
 {
     internal class FunctionCall : ExpressionNode
     {
-        public static FunctionCall CreateInstance(string identifier)
+        public static FunctionCall CreateInstance(string identifier, bool ignoreCase)
         {
+            if (ignoreCase) identifier = identifier.ToLowerInvariant();
             switch (identifier)
             {
                 case Conditional.FUNCTION_NAME:
