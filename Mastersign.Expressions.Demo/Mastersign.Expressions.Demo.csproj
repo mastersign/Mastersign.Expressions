@@ -7,7 +7,7 @@
 		<OutputType>WinExe</OutputType>
 		<PlatformTarget>AnyCPU</PlatformTarget>
 
-		<Version>0.5.1.0</Version>
+		<Version>0.5.2.0</Version>
 
 		<Title>Mastersign.Expressions Demo</Title>
 		<Product>Mastersign.Expressions</Product>
