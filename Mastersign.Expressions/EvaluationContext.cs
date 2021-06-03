@@ -71,7 +71,7 @@ namespace Mastersign.Expressions
         private void InitializeVariableLookupTable()
         {
             variableLookup = new Dictionary<string, Tuple<object, bool>>(
-                IgnoreVariableNameCase
+                Options.IgnoreVariableNameCase
                     ? StringComparer.InvariantCultureIgnoreCase
                     : StringComparer.InvariantCulture);
             foreach (var variable in variableList)
@@ -92,8 +92,7 @@ namespace Mastersign.Expressions
         /// </param>
         public void SetVariable(string name, object value, bool asConst = false)
         {
-            if (Grammar.IsLiteralKeyword(name)) throw new ArgumentException("The given variable name is a language literal keyword.");
-            if (Grammar.IsOperatorKeyword(name)) throw new ArgumentException("The given variable name is a language operator keyword.");
+            if (Options.IsKeyword(name)) throw new ArgumentException("The given variable name is a language keyword.");
             var kvp = new KeyValuePair<string, Tuple<object, bool>>(name, Tuple.Create(value, asConst));
             variableList.Add(kvp);
             SetVariable(kvp);
@@ -174,7 +173,7 @@ namespace Mastersign.Expressions
 
         private void InitializeFunctionLookupTable()
         {
-            functionGroupLookup = IgnoreFunctionNameCase
+            functionGroupLookup = Options.IgnoreFunctionNameCase
                 ? new Dictionary<string, FunctionGroup>(StringComparer.InvariantCultureIgnoreCase)
                 : new Dictionary<string, FunctionGroup>(StringComparer.InvariantCulture);
             foreach (var function in functionList)
@@ -227,7 +226,7 @@ namespace Mastersign.Expressions
         public void RemoveFunctionGroup(string identifier)
         {
             functionList.RemoveAll(kvp => string.Equals(kvp.Key, identifier,
-                    IgnoreFunctionNameCase
+                    Options.IgnoreFunctionNameCase
                         ? StringComparison.InvariantCultureIgnoreCase
                         : StringComparison.InvariantCulture));
             functionGroupLookup.Remove(identifier);
@@ -267,7 +266,7 @@ namespace Mastersign.Expressions
         private void InitializeParameterLookup()
         {
             parameterLookup = new Dictionary<string, Tuple<ParameterInfo, int>>(
-                IgnoreParameterNameCase
+                Options.IgnoreParameterNameCase
                     ? StringComparer.InvariantCultureIgnoreCase
                     : StringComparer.InvariantCulture);
             for (int i = 0; i < parameterList.Length; i++)
@@ -712,94 +711,18 @@ namespace Mastersign.Expressions
         internal Grammar Grammar { get { return grammar; } }
 
         /// <summary>
-        /// Gets and sets the language capabilities.
+        /// Gets and sets the language options.
         /// </summary>
-        public LanguageCapabilities Capabilities
+        public LanguageOptions Options
         {
-            get { return grammar.Capabilities; }
+            get { return grammar.Options; }
             set
             {
-                if (grammar.Capabilities == value) return;
-                grammar.Capabilities = value;
+                if (grammar.Options == value) return;
+                grammar.Options = value;
                 cachedParser = null;
+                InitializeLookupTables();
             }
-        }
-
-        /// <summary>
-        /// A switch to ignore the case of operator keywords like <c>or</c> and <c>xor</c>.
-        /// </summary>
-        public bool IgnoreOperatorCase
-        {
-            get => grammar.IgnoreOperatorCase;
-            set => grammar.IgnoreOperatorCase = value;
-        }
-
-        /// <summary>
-        /// A switch to ignore the case of literal keywords like <c>true</c> and <c>null</c>.
-        /// </summary>
-        public bool IgnoreLiteralCase
-        {
-            get => grammar.IgnoreLiteralCase;
-            set => grammar.IgnoreLiteralCase = value;
-        }
-
-        private bool ignoreVariableNameCase;
-
-        /// <summary>
-        /// A switch to ignore the case of variable names.
-        /// </summary>
-        public bool IgnoreVariableNameCase
-        {
-            get => ignoreVariableNameCase;
-            set
-            {
-                if (ignoreVariableNameCase == value) return;
-                ignoreVariableNameCase = value;
-                InitializeVariableLookupTable();
-            }
-        }
-
-        /// <summary>
-        /// A switch to ignore the case of function names.
-        /// </summary>
-        public bool IgnoreFunctionNameCase
-        {
-            get => grammar.IgnoreFunctionCase;
-            set
-            {
-                if (grammar.IgnoreFunctionCase == value) return;
-                grammar.IgnoreFunctionCase = value;
-                InitializeFunctionLookupTable();
-            }
-        }
-
-        private bool ignoreParameterNameCase;
-
-        /// <summary>
-        /// A switch to ignore the case of parameter names.
-        /// </summary>
-        public bool IgnoreParameterNameCase
-        {
-            get => ignoreParameterNameCase;
-            set
-            {
-                if (ignoreParameterNameCase == value) return;
-                ignoreParameterNameCase = value;
-                InitializeParameterLookup();
-            }
-        }
-
-        /// <summary>
-        /// Sets all switches for ignoring case.
-        /// </summary>
-        /// <param name="ignoreCase"><c>true</c> if the case of input can be ignored; otherwise <c>false</c>.</param>
-        public void SetIgnoreCase(bool ignoreCase)
-        {
-            IgnoreOperatorCase = ignoreCase;
-            IgnoreLiteralCase = ignoreCase;
-            IgnoreVariableNameCase = ignoreCase;
-            IgnoreParameterNameCase = ignoreCase;
-            IgnoreFunctionNameCase = ignoreCase;
         }
 
         private Parser<ExpressionElement> cachedParser;

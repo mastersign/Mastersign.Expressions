@@ -10,14 +10,7 @@ namespace Mastersign.Expressions.Language
     {
         public static FunctionCall CreateInstance(string identifier, bool ignoreCase)
         {
-            if (ignoreCase) identifier = identifier.ToLowerInvariant();
-            switch (identifier)
-            {
-                case Conditional.FUNCTION_NAME:
-                    return new Conditional();
-                default:
-                    return new FunctionCall(identifier);
-            }
+            return new FunctionCall(ignoreCase ? identifier.ToLowerInvariant() : identifier);
         }
 
         public string Identifier { get; private set; }

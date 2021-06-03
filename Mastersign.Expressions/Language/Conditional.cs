@@ -7,10 +7,8 @@ namespace Mastersign.Expressions.Language
 {
     internal class Conditional : FunctionCall
     {
-        public const string FUNCTION_NAME = "if";
-
-        public Conditional()
-            : base(FUNCTION_NAME)
+        public Conditional(string conditionalName)
+            : base(conditionalName)
         {
             Name = "Condition";
         }

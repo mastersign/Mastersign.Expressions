@@ -10,7 +10,7 @@ namespace Mastersign.Expressions.Language
     {
         #region static parts
 
-        public static string[] LiteralKeywords = new[] { "true", "false", "null" };
+        public static string[] BooleanKeywords = new[] { "true", "false" };
 
         public static string[] OperatorKeywords = new[] { "and", "or", "xor" };
 
@@ -65,51 +65,6 @@ namespace Mastersign.Expressions.Language
         public static readonly Parser<DecimalLiteral> DecimalLiteral =
             from number in FloatingPoint.Concat(Suffix('m')).Text().Token()
             select new DecimalLiteral(number);
-
-        private static readonly Parser<StringLiteral> emptyString =
-            from text in Parse.String("\"\"").Text()
-            select new StringLiteral(String.Empty);
-
-        private static string Unescape(char escapeSymbol)
-        {
-            switch (escapeSymbol)
-            {
-                case '\\': return "\\";
-                case '\"': return "\"";
-                case 'a': return "\a";
-                case 'b': return "\b";
-                case 'f': return "\f";
-                case 'n': return "\n";
-                case 'r': return "\r";
-                case 't': return "\t";
-                case 'v': return "\v";
-            }
-            throw new ArgumentException(
-                String.Format("The escape symbol '{0}' is unknown.", escapeSymbol),
-                "escapeSymbol");
-        }
-
-        private static readonly Predicate<char> specialStringChar = c => c == '"' || c == '\\';
-
-        private static readonly Parser<string> stringTokens =
-            from token in
-                (
-                    Parse.CharExcept(specialStringChar, "Quotes and the escape character.")
-                    .Many().Text())
-                    .Or(
-                    from escape in Parse.Char('\\')
-                    from escapeSymbol in Parse.AnyChar
-                    select Unescape(escapeSymbol))
-            select token;
-
-        private static readonly Parser<StringLiteral> nonEmptyString =
-            from leadingQuotes in Parse.Char('"').Once().Text()
-            from content in stringTokens.Until(Parse.Char('"'))
-            select new StringLiteral(String.Concat(content));
-
-        public static readonly Parser<StringLiteral> StringLiteral =
-            from literal in emptyString.Or(nonEmptyString).Token()
-            select literal;
 
         public static readonly Parser<string> Identifier =
             from leadingWhite in Parse.WhiteSpace.Many()
@@ -169,33 +124,17 @@ namespace Mastersign.Expressions.Language
 
         #region configuration
 
-        public LanguageCapabilities Capabilities { get; set; }
-
-        private bool ignoreOperatorCase;
-        public bool IgnoreOperatorCase
+        private LanguageOptions options;
+        public LanguageOptions Options
         {
-            get { return ignoreOperatorCase; }
+            get { return options; }
             set
             {
-                if (ignoreOperatorCase == value) return;
-                ignoreOperatorCase = value;
+                if (options == value) return;
+                options = value;
                 UpdateConfigurationDependentTokens();
             }
         }
-
-        public bool ignoreLiteralCase;
-        public bool IgnoreLiteralCase
-        {
-            get { return ignoreLiteralCase; }
-            set
-            {
-                if (ignoreLiteralCase == value) return;
-                ignoreLiteralCase = value;
-                UpdateConfigurationDependentTokens();
-            }
-        }
-
-        public bool IgnoreFunctionCase { get; set; }
 
         #endregion
 
@@ -210,23 +149,29 @@ namespace Mastersign.Expressions.Language
 
         public Parser<Operator> AnyOperator;
 
+        private Parser<StringLiteral> emptyString;
+        private Parser<string> stringTokens;
+        private Parser<StringLiteral> nonEmptyString;
+
+        public Parser<StringLiteral> StringLiteral;
+
         private void UpdateConfigurationDependentTokens()
         {
-            BooleanLiteral = IgnoreLiteralCase
-                ? from value in Parse.IgnoreCase("true").Or(Parse.IgnoreCase("false")).Token().Text()
+            BooleanLiteral = options.IgnoreBooleanLiteralCase
+                ? from value in Parse.IgnoreCase(options.LiteralTrueName).Or(Parse.IgnoreCase(options.LiteralFalseName)).Token().Text()
                   select new BooleanLiteral(value.ToLowerInvariant())
-                : from value in Parse.String("true").Or(Parse.String("false")).Token().Text()
+                : from value in Parse.String(options.LiteralTrueName).Or(Parse.String(options.LiteralFalseName)).Token().Text()
                   select new BooleanLiteral(value);
 
-            NullLiteral = IgnoreLiteralCase
-                ? from src in Parse.IgnoreCase("null").Token().Text()
+            NullLiteral = options.IgnoreNullLiteralCase
+                ? from src in Parse.IgnoreCase(options.LiteralNullName).Token().Text()
                   select new NullLiteral(src.ToLowerInvariant())
-                : from src in Parse.String("null").Token().Text()
+                : from src in Parse.String(options.LiteralNullName).Token().Text()
                   select new NullLiteral(src);
 
-            BoolAndOp = BuildOpParser("and", Operator.BoolAnd, IgnoreOperatorCase);
-            BoolOrOp = BuildOpParser("or", Operator.BoolOr, IgnoreOperatorCase);
-            BoolXorOp = BuildOpParser("xor", Operator.BoolXor, IgnoreOperatorCase);
+            BoolAndOp = BuildOpParser(options.OperatorAndName, Operator.BoolAnd, options.IgnoreOperatorCase);
+            BoolOrOp = BuildOpParser(options.OperatorOrName, Operator.BoolOr, options.IgnoreOperatorCase);
+            BoolXorOp = BuildOpParser(options.OperatorXorName, Operator.BoolXor, options.IgnoreOperatorCase);
             AnyOperator =
                 from op in NumAdditionOp
                     .Or(NumSubtractionOp)
@@ -244,127 +189,113 @@ namespace Mastersign.Expressions.Language
                     .Or(RelGreaterOrEqualOp)
                     .Or(RelGreaterOp)
                 select op;
+
+            emptyString =
+                from text in Parse.String("" + options.StartQuoteChar + options.EndQuoteChar).Text()
+                select new StringLiteral(String.Empty);
+            stringTokens =
+                    from token in
+                        (Parse.CharExcept(IsSpecialStringChar, "Quotes and the escape character.")
+                        .Many().Text())
+                        .Or(from escape in Parse.Char('\\')
+                            from escapeSymbol in Parse.AnyChar
+                            select Unescape(escapeSymbol))
+                    select token;
+            nonEmptyString =
+                from leadingQuotes in Parse.Char(options.StartQuoteChar).Once().Text()
+                from content in stringTokens.Until(Parse.Char(options.EndQuoteChar))
+                select new StringLiteral(String.Concat(content));
+            StringLiteral =
+                from literal in emptyString.Or(nonEmptyString).Token()
+                select literal;
         }
 
-        public bool IsLiteralKeyword(string word)
+        private string Unescape(char escapeSymbol)
         {
-            return LiteralKeywords.Contains(word, IgnoreLiteralCase
-                ? StringComparer.InvariantCultureIgnoreCase
-                : StringComparer.InvariantCulture);
+            if (escapeSymbol == options.StartQuoteChar) return new string(escapeSymbol, 1);
+            if (escapeSymbol == options.EndQuoteChar) return new string(escapeSymbol, 1);
+            switch (escapeSymbol)
+            {
+                case '\\': return "\\";
+                case 'a': return "\a";
+                case 'b': return "\b";
+                case 'f': return "\f";
+                case 'n': return "\n";
+                case 'r': return "\r";
+                case 't': return "\t";
+                case 'v': return "\v";
+            }
+            throw new ArgumentException(
+                string.Format("The escape symbol '{0}' is unknown.", escapeSymbol),
+                nameof(escapeSymbol));
         }
 
-        public bool IsOperatorKeyword(string word)
-        {
-            return OperatorKeywords.Contains(word, IgnoreOperatorCase
-                ? StringComparer.InvariantCultureIgnoreCase
-                : StringComparer.InvariantCulture);
-        }
+        private bool IsSpecialStringChar(char c)
+            => c == '\\' || c == options.StartQuoteChar || c == options.EndQuoteChar;
 
         #endregion
 
         public Grammar()
         {
-            Capabilities = LanguageCapabilities.Basic;
+            options = LanguageOptions.Default;
             UpdateConfigurationDependentTokens();
         }
 
         public Parser<Group> Group
-        {
-            get
-            {
-                return from lPar in Parse.Char('(')
-                       from expr in Parse.Ref(() => Expression)
-                       from rPar in Parse.Char(')')
-                       select new Group(expr);
-            }
-        }
+            => from lPar in Parse.Char('(')
+               from expr in Parse.Ref(() => Expression)
+               from rPar in Parse.Char(')')
+               select new Group(expr);
 
         public Parser<IEnumerable<ExpressionElement>> ExpressionList
-        {
-            get
-            {
-                return
-                    from chain in
-                        Parse.ChainOperator(
-                            ListSeparator,
-                            from expression in Parse.Ref(() => Expression)
-                            select new Chain<ExpressionElement>(expression),
-                            (sep, c1, c2) => c2.Append(c1))
-                    select chain.Reverse();
-            }
-        }
+            => from chain in
+                   Parse.ChainOperator(
+                       ListSeparator,
+                       from expression in Parse.Ref(() => Expression)
+                       select new Chain<ExpressionElement>(expression),
+                       (sep, c1, c2) => c2.Append(c1))
+               select chain.Reverse();
 
         public Parser<FunctionCall> FunctionCall
-        {
-            get
-            {
-                return
-                    from call in
-                        (from identifier in Identifier.Token()
-                         select Language.FunctionCall.CreateInstance(identifier, IgnoreFunctionCase))
-                    from lPar in Parse.Char('(')
-                    from parameters in ExpressionList
-                        .Or(Parse.WhiteSpace.Many().Return(Chain<ExpressionElement>.Empty))
-                    from rPar in Parse.Char(')')
-                    from white in Parse.WhiteSpace.Many()
-                    select call.WithParameters(parameters);
-            }
-        }
+            => from call in
+                   (from identifier in Identifier.Token()
+                       select string.Equals(identifier, options.ConditionalName, options.GetStringComparison(options.IgnoreConditionalCase))
+                        ? new Conditional(options.IgnoreConditionalCase
+                            ? identifier.ToLowerInvariant()
+                            : identifier)
+                        : new FunctionCall(options.IgnoreFunctionNameCase
+                            ? identifier.ToLowerInvariant()
+                            : identifier))
+               from lPar in Parse.Char('(')
+               from parameters in ExpressionList
+                   .Or(Parse.WhiteSpace.Many().Return(Chain<ExpressionElement>.Empty))
+               from rPar in Parse.Char(')')
+               from white in Parse.WhiteSpace.Many()
+               select call.WithParameters(parameters);
 
         public Parser<ExpressionElement> TermBase
-        {
-            get
-            {
-                return
-                    from term in NullLiteral
-                        .Or<ExpressionElement>(DecimalLiteral)
-                        .Or<ExpressionElement>(FloatingPointLiteral)
-                        .Or<ExpressionElement>(IntegerLiteral)
-                        .Or<ExpressionElement>(BooleanLiteral)
-                        .Or<ExpressionElement>(StringLiteral)
-                        .Or<ExpressionElement>(FunctionCall)
-                        .Or<ExpressionElement>(Variable)
-                        .Or<ExpressionElement>(Group)
-                    select term;
-            }
-        }
+            => from term in NullLiteral
+                   .Or<ExpressionElement>(DecimalLiteral)
+                   .Or<ExpressionElement>(FloatingPointLiteral)
+                   .Or<ExpressionElement>(IntegerLiteral)
+                   .Or<ExpressionElement>(BooleanLiteral)
+                   .Or<ExpressionElement>(StringLiteral)
+                   .Or<ExpressionElement>(FunctionCall)
+                   .Or<ExpressionElement>(Variable)
+                   .Or<ExpressionElement>(Group)
+               select term;
 
         public Parser<ExpressionElement> TermWithMemberRead
-        {
-            get
-            {
-                return
-                    from termBase in TermBase
-                    from rightParts in RightParts
-                    select termBase.TransformWithRightParts(rightParts);
-            }
-        }
+            => from termBase in TermBase
+               from rightParts in RightParts
+               select termBase.TransformWithRightParts(rightParts);
 
 
         public Parser<ExpressionElement> Term
-        {
-            get
-            {
-                switch (Capabilities)
-                {
-                    case LanguageCapabilities.Basic:
-                        return TermBase;
-                    case LanguageCapabilities.MemberRead:
-                        return TermWithMemberRead;
-                    default:
-                        throw new NotSupportedException();
-                }
-            }
-        }
+            => options.MemberRead ? TermWithMemberRead : TermBase;
 
         public Parser<ExpressionElement> Expression
-        {
-            get
-            {
-                return
-                    from expression in Parse.ChainOperator(AnyOperator, Term, OperationBuilder)
-                    select expression;
-            }
-        }
+            => from expression in Parse.ChainOperator(AnyOperator, Term, OperationBuilder)
+               select expression;
     }
 }
