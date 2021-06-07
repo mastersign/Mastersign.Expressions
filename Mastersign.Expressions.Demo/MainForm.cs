@@ -92,7 +92,9 @@ namespace Mastersign.Expressions.Demo
                 cmbExpr.BackColor = SystemColors.Window;
                 expr = "0";
             }
-            evalContext.SetIgnoreCase(chkIgnoreCase.Checked);
+            evalContext.Options = new LanguageOptionsBuilder()
+                .IgnoreCase(all: chkIgnoreCase.Checked)
+                .Build();
             try
             {
                 f = evalContext.CompileExpression<int, int, double, double, double>(expr);
