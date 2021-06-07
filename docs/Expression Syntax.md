@@ -18,12 +18,14 @@ The syntax of _Mastersign.Expressions_ supports literals, symbols (variable, con
 * [Function Calls](#function-calls)
     + [Integrated Functions](#integrated-functions)
 * [Member Read](#member-read)
+* [Language Options](#language-options)
 
 ## Literals
 There are boolean, numerical, and string literals. Additionally there is the null literal for empty CLR references.
 
 ### Boolean Literals
-Boolean literals are `true` and `false`. They need to be lowercase and are evaluated as values of the primitive CLR type `System.Boolean`.
+Boolean literals are `true` and `false`.
+By default, they must be lowercase and are evaluated as values of the primitive CLR type `System.Boolean`.
 
 ### Numeric Literals
 The numerical literals split up into integer, floating point, and decimal literals. All numerical literals are signed values. Integer literals are evaluated as values of the primitive CLR type `System.Int32` or `System.Int64`. Floating point literals are evaluated as values of the primitive CLR type `System.Single` or `System.Double`. Decimal literals are evaluated as values of the primitive CLR type `System.Decimal`. The literals are only recognized in international number style, what means that the decimal separator is the point. Additional separators for groups of thousand or scientific notation with some kind of exponent are not supported. Between a sign (`+`, `-`) and the first digit of a number no whitespace is allowed.
@@ -39,14 +41,18 @@ The numerical literals split up into integer, floating point, and decimal litera
 | Decimal | `24.99m`, `-90.95M`, `+00.001m` | The postfix 'm' can be lower or upper case. The value is represented by `System.Decimal`. |
 
 ### String Literals
-String are encased by double quotes. They can contain escape characters, which are masked by the back slash `\`.
+Strings are encased with double quotes, by default.
+The quote style of strings can be changed in the language options to single quotes or backticks.
+They can contain escape characters, which are masked by the back slash `\`.
 
 Examples: `"abc"`, `"Hello World!"`, `"He said, \"What a weather!\""`, `"C:\\User\\"`
 
 | Escape Character | Meaning |
 |------------------|---------|
 | `\\` | A single backslash _\_. |
-| `\"` | Double quotes _"_. |
+| `\"` | Double quotes _"_, in case it is a string quote character. |
+| `\'` | Single quotes _'_, in case it is a string quote character. |
+| `\&#96;` | Backticks _`_, in case it is a string quote character. |
 | `\a` | Ring (Unicode (0x0007). |
 | `\b` | Backspace, or one step back resp.  (Unicode 0x0008). |
 | `\f` | New page (Unicode 0x000C). |
@@ -56,13 +62,17 @@ Examples: `"abc"`, `"Hello World!"`, `"He said, \"What a weather!\""`, `"C:\\Use
 | `\v` | Vertical tab stop (Unicode 0x000B). |
 
 ### Null Literal
-The null literal is `null`. It must be lower case and represents an empty CLR reference. Null is compatible with every reference type of the CLR type system.
+The null literal is `null`.
+By default, it must be lower case and represents an empty CLR reference.
+Null is compatible with every reference type of the CLR type system.
 
 ## Operators
-Operators serve to combine two values like `1 + 2`. There are logical, numerical, string, and comparison operators.
+Operators serve to combine two values like `1 + 2`.
+There are logical, numerical, string, and comparison operators.
 
 ### Logical Operators
 Logical operators only combine boolean values or expressions, which have the type `System.Boolean`.
+By default the operator keywords must be lower case.
 
 | Operator | Example | Description |
 |----------|---------|-------------|
@@ -156,8 +166,21 @@ second argument. Otherwise, it results in the value of the third argument.
 * Syntax: if(_condition_, _then-expr_, _else-expr_)
 * Example: `if(a > b, 10, 1)`
 
+Hint: Since version 0.6, the name of the conditional function can be changed in the language options, e. g. to `iif`.
+
 ## Member Read
 
 _since version: 0.4.0_
 
 To allow read-only access to fields and properties of values (or objects), the member read syntax can be used. To read a member of the resulting value of an expression, the dot notation is used. To read the field _b_ of expression _a_ the syntax is `a.b`. The expression _a_ can be anything which results in a value, having a public property or field _b_. Therefore, the expression `("abc" & "def").Length` results in _6_.
+
+## Language Options
+
+_since version: 0.6.0_
+
+A number of language characteristics can be changed by the language options.
+
+* capabilities like _Member Read_
+* case ignorance
+* boolean and null literal names
+* conditional function name

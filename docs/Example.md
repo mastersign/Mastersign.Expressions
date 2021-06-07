@@ -5,11 +5,18 @@ maybe add custom variables and functions, and off you go!
 
 ```csharp
 using System;
-using de.mastersign.expressions;
+using Mastersign.Expressions;
 static class Program
 {
     static void Main()
     {
+        // Prepare some language options
+        var langOptions = new LanguageOptionsBuilder()
+            .IgnoreBooleanLiteralCase()
+            .IgnoreNullLiteralCase()
+            .WithConditionalName("iif")
+            .Build();
+
         // Create a main evaluation context for all your expressions
         var mainContext = new EvaluationContext();
 
@@ -36,12 +43,21 @@ static class Program
         // Create a second evaluation context (B)
         var contextB = new EvaluationContext(mainContext);
 
+        // derive new language options
+        // and assign them to the second eval context
+        contextB.Options = langOptions.Derive()
+            .IgnoreVariableNameCase()
+            .Build();
+
         // Add a custom variable to context B
-        contextB.SetVariable("x", 5);
+        contextB.SetVariable("x", 0);
 
         // Compile an expression into a lambda delegate using context B
-        var exprB = "\"High \" & x & \"!\"";
+        var exprB = "\"High \" & X & \"!\"";
         var funB = contextB.CompileExpression<string>(exprB);
+
+        // update a custom variable after compilation
+        contextB.SetVariable("x", 5);
 
         // Call the delegates and write the results to the console
         Console.WriteLine("{0} -> {1}", exprA, funA(2));
@@ -49,35 +65,40 @@ static class Program
 
         // The output looks like this:
         // > sin(pi * neg(10.0 + x)) + a -> 2
-        // > "High " & x & "!" -> High 5!
+        // > "High " & X & "!" -> High 5!
     }
 }
 ```
 
-In the version 0.4.0 of Mastersign.Expressions the support for reading members is allways activated, since version 0.4.1 additional language capabilities are activated by `ExpressionContext.Capabilities`. The following example demonstrates the activation of optional language features.
+Additional language capabilities and syntactic options are activated by setting `ExpressionContext.Options`.
+A `LanguageOptions` object is immutable, and usually constructed by using the `LanguageOptionsBuilder` class.
+The following example demonstrates the configuration of language features.
 
 ```csharp
 using System;
-using de.mastersign.expressions;
+using Mastersign.Expressions;
 static class Program
 {
     static void Main()
     {
-        // Create a evaluation context
-        var context = new EvaluationContext();
-
-        // Activate optional capabilities
-        context.Capabilities = LanguageCapabilities.MemberRead;
+        // Create a evaluation context with adjusted options
+        var context = new EvaluationContext
+        {
+            Options = new LanguageOptionsBuilder()
+                .WithMemberRead()
+                .WithQuoteCharacter(QuoteStyle.SingleQuote)
+                .Build(),
+        };
 
         // Compile an expression into a lambda delegate using context
-        var expr = "(\"abc\" & \"def\").Length";
+        var expr = "('abc' & 'def').Length";
         var fun = context.CompileExpression<int>(expr);
 
         // Call the delegate and write the result to the console
         Console.WriteLine("{0} -> {1}", expr, fun());
 
         // The output looks like this:
-        // > ("abc" & "def").Length -> 6
+        // > ('abc' & 'def').Length -> 6
     }
 }
 ```
