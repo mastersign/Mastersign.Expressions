@@ -79,6 +79,8 @@ All conversion functions start with the prefix `c_` followed by a name describin
 * `trim_end(value)` - Removes trailing whitespaces from a string (`System.String.TrimEnd()`)
 * `substr(str, start)` - Returns a rest of a string, beginning with the character at zero-based position _start_ (`System.String.Substring()`)
 * `substr(str, start, length)` - Returns a part of a string, starting with the character at zero-based position _start_ and being _length_ characters long (`System.String.Substring()`)
+* `left(str, count)` - Returns the first `count` characters of the string, or the whole string, in case it is shorter then `count`.
+* `right(str, count)` - Returns the last `count` characters of the string, or the whole string, in case it is shorter then `count`.
 * `remove(str, start)` - Removes a trailing part from a string, starting with the character at zero-based position _start_ (`System.String.Remove()`)
 * `remove(str, start, length)` - Removes a part from a string, starting with the character at zero-based position _start_ and being _length_ characters long (`System.String.Remove()`)
 * `replace(str, old, new)` - Replaces every occurance of _new_ in _str_ with _old_ (`System.String.Replace()`)

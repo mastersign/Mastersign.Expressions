@@ -15,6 +15,8 @@ namespace Mastersign.Expressions.Functions
         public static string TrimEnd(string s) { return s.TrimEnd(); }
         public static string Substr(string s, int start) { return s.Substring(start); }
         public static string Substr(string s, int start, int length) { return s.Substring(start, length); }
+        public static string Left(string s, int count) { return s.Length < count ? s : s.Substring(0, count); }
+        public static string Right(string s, int count) { return s.Length < count ? s : s.Substring(s.Length - count); }
         public static string Remove(string s, int start) { return s.Remove(start); }
         public static string Remove(string s, int start, int length) { return s.Remove(start, length); }
         public static string Replace(string s, string oldValue, string newValue) { return s.Replace(oldValue, newValue); }

@@ -307,5 +307,19 @@ namespace Mastersign.Expressions.Tests
             Assert.AreEqual(4, evaluatedResult);
         }
 
+        [Test]
+        public void StringFunctionTest()
+        {
+            var context = new EvaluationContext();
+            context.LoadStringPackage();
+
+            Assert.AreEqual("123", context.EvaluateExpression("left(\"1234\", 3)"));
+            Assert.AreEqual("123", context.EvaluateExpression("left(\"123\", 3)"));
+            Assert.AreEqual("123", context.EvaluateExpression("left(\"123\", 4)"));
+
+            Assert.AreEqual("321", context.EvaluateExpression("right(\"4321\", 3)"));
+            Assert.AreEqual("321", context.EvaluateExpression("right(\"321\", 3)"));
+            Assert.AreEqual("321", context.EvaluateExpression("right(\"321\", 4)"));
+        }
     }
 }

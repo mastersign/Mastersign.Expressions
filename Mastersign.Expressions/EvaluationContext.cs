@@ -665,6 +665,8 @@ namespace Mastersign.Expressions
             AddFunction("trim_end", typeof(Strings).GetMethod("TrimEnd", new[] { typeof(string) }));
             AddFunction("substr", typeof(Strings).GetMethod("Substr", new[] { typeof(string), typeof(int) }));
             AddFunction("substr", typeof(Strings).GetMethod("Substr", new[] { typeof(string), typeof(int), typeof(int) }));
+            AddFunction("left", typeof(Strings).GetMethod("Left", new[] { typeof(string), typeof(int) }));
+            AddFunction("right", typeof(Strings).GetMethod("Right", new[] { typeof(string), typeof(int) }));
             AddFunction("remove", typeof(Strings).GetMethod("Remove", new[] { typeof(string), typeof(int) }));
             AddFunction("remove", typeof(Strings).GetMethod("Remove", new[] { typeof(string), typeof(int), typeof(int) }));
             AddFunction("replace", typeof(Strings).GetMethod("Replace", new[] { typeof(string), typeof(string), typeof(string) }));
