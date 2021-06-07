@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
+using Mastersign.Expressions.Functions;
+using Mastersign.Expressions.Language;
 using NUnit.Framework;
 using Sprache;
-using System.Linq.Expressions;
-using Mastersign.Expressions.Language;
-using Mastersign.Expressions.Functions;
 
 namespace Mastersign.Expressions.Tests.Language
 {
@@ -47,6 +46,11 @@ namespace Mastersign.Expressions.Tests.Language
         private static void ExpectResult(string input, Type expectedType, object expectedValue)
         {
             ExpectResult(new EvaluationContext(), input, expectedType, expectedValue);
+        }
+
+        private static void ExpectResult(LanguageOptions options, string input, Type expectedType, object expectedValue)
+        {
+            ExpectResult(new EvaluationContext { Options = options }, input, expectedType, expectedValue);
         }
 
         private static void ExpectResult(EvaluationContext context, string input, Type expectedType, object expectedValue)
@@ -130,9 +134,9 @@ namespace Mastersign.Expressions.Tests.Language
 
         private static object EvaluateExpression(Expression expr)
         {
-            if (expr.Type != typeof (object))
+            if (expr.Type != typeof(object))
             {
-                expr = Expression.Convert(expr, typeof (object));
+                expr = Expression.Convert(expr, typeof(object));
             }
             var lambda = Expression.Lambda<Func<object>>(expr);
             var function = lambda.Compile();
@@ -201,7 +205,12 @@ namespace Mastersign.Expressions.Tests.Language
         [Test]
         public void OperatorIgnoreCasingTest()
         {
-            var grammar = new Grammar { IgnoreOperatorCase = true };
+            var grammar = new Grammar
+            {
+                Options = new LanguageOptionsBuilder()
+                    .IgnoreOperatorCase()
+                    .Build(),
+            };
             ExpectAccept(grammar.AnyOperator, "and", "or", "xor");
             ExpectAccept(grammar.AnyOperator, "And", "Or", "Xor");
             ExpectAccept(grammar.AnyOperator, "AND", "OR", "XOR");
@@ -232,7 +241,12 @@ namespace Mastersign.Expressions.Tests.Language
         [Test]
         public void NullLiteralIgnoreCasingTest()
         {
-            var grammar = new Grammar { IgnoreLiteralCase = true };
+            var grammar = new Grammar
+            {
+                Options = new LanguageOptionsBuilder()
+                    .IgnoreNullLiteralCase()
+                    .Build(),
+            };
             ExpectAccept(grammar.NullLiteral, "null");
             ExpectAccept(grammar.NullLiteral, "Null");
             ExpectAccept(grammar.NullLiteral, "NULL");
@@ -373,7 +387,12 @@ namespace Mastersign.Expressions.Tests.Language
         [Test]
         public void BooleanIgnoreCasingTest()
         {
-            var grammar = new Grammar { IgnoreLiteralCase = true };
+            var grammar = new Grammar
+            {
+                Options = new LanguageOptionsBuilder()
+                    .IgnoreBooleanLiteralCase()
+                    .Build(),
+            };
             ExpectAccept(grammar.BooleanLiteral, "true", "false");
             ExpectAccept(grammar.BooleanLiteral, "True", "False");
             ExpectAccept(grammar.BooleanLiteral, "TRUE", "FALSE");
@@ -382,19 +401,67 @@ namespace Mastersign.Expressions.Tests.Language
         [Test]
         public void StringTest()
         {
-            ExpectReject(Grammar.StringLiteral,
-                "", " ", "\"", "'", "''", "' '", "\"abc", "\"a\" \"b\"");
+            var grammar = new Grammar();
+            ExpectReject(grammar.StringLiteral,
+                "", " ", "\"", "'", "`", "''", "' '", "``", "` `", "\"abc", "\"a\" \"b\"");
 
-            ExpectAccept(Grammar.StringLiteral, "\"\""); // '""'
-            ExpectAccept(Grammar.StringLiteral, " \"\" "); // ' "" '
-            ExpectAccept(Grammar.StringLiteral, "\" \""); // '" "'
-            ExpectAccept(Grammar.StringLiteral, "\"abc def\""); // '"abc def"'
-            ExpectAccept(Grammar.StringLiteral, " \"abc def\" "); // ' "abc def" '
-            ExpectAccept(Grammar.StringLiteral, "\"\\\"\""); // '"\""'
-            ExpectAccept(Grammar.StringLiteral, "\"\\t\\\"abc\\\"\""); // '"\t\"abc\""'
+            ExpectAccept(grammar.StringLiteral, "\"\""); // |""|
+            ExpectAccept(grammar.StringLiteral, " \"\" "); // | "" |
+            ExpectAccept(grammar.StringLiteral, "\" \""); // |" "|
+            ExpectAccept(grammar.StringLiteral, "\"abc def\""); // |"abc def"|
+            ExpectAccept(grammar.StringLiteral, " \"abc def\" "); // | "abc def" |
+            ExpectAccept(grammar.StringLiteral, "\"\\\"\""); // |"\""|
+            ExpectAccept(grammar.StringLiteral, "\"\\t\\\"abc\\\"\""); // |"\t\"abc\""|
 
             ExpectResult("\"abc\"", typeof(string), "abc");
             ExpectResult("\" 123\\t \\n\\r\\\\ ende\"", typeof(string), " 123\t \n\r\\ ende");
+            ExpectResult("\"''``\"", typeof(string), "''``");
+        }
+
+        [Test]
+        public void SingleQuoteStringTest()
+        {
+            var options = new LanguageOptionsBuilder()
+                .WithQuoteCharacter(QuoteStyle.SingleQuote)
+                .Build();
+            var grammar = new Grammar { Options = options };
+            ExpectReject(grammar.StringLiteral,
+                "", " ", "\"", "'", "`", "\"\"", "\" \"", "``", "` `", "'abc", "'a' 'b'");
+
+            ExpectAccept(grammar.StringLiteral, "''");
+            ExpectAccept(grammar.StringLiteral, " '' ");
+            ExpectAccept(grammar.StringLiteral, "' '");
+            ExpectAccept(grammar.StringLiteral, "'abc def'");
+            ExpectAccept(grammar.StringLiteral, " 'abc def' ");
+            ExpectAccept(grammar.StringLiteral, "'\\''");
+            ExpectAccept(grammar.StringLiteral, "'\\t\\'abc\\''"); // |'\t\'abc\''|
+
+            ExpectResult(options, "'abc'", typeof(string), "abc");
+            ExpectResult(options, "' 123\\t \\n\\r\\\\ ende'", typeof(string), " 123\t \n\r\\ ende");
+            ExpectResult(options, "'\"\"``'", typeof(string), "\"\"``");
+        }
+
+        [Test]
+        public void BacktickStringTest()
+        {
+            var options = new LanguageOptionsBuilder()
+                .WithQuoteCharacter(QuoteStyle.Backtick)
+                .Build();
+            var grammar = new Grammar { Options = options };
+            ExpectReject(grammar.StringLiteral,
+                "", " ", "\"", "'", "`", "\"\"", "\" \"", "''", "' '", "`abc", "`a` `b`");
+
+            ExpectAccept(grammar.StringLiteral, "``");
+            ExpectAccept(grammar.StringLiteral, " `` ");
+            ExpectAccept(grammar.StringLiteral, "` `");
+            ExpectAccept(grammar.StringLiteral, "`abc def`");
+            ExpectAccept(grammar.StringLiteral, " `abc def` ");
+            ExpectAccept(grammar.StringLiteral, "`\\``");
+            ExpectAccept(grammar.StringLiteral, "`\\t\\`abc\\``"); // |`\t\`abc\``|
+
+            ExpectResult(options, "`abc`", typeof(string), "abc");
+            ExpectResult(options, "` 123\\t \\n\\r\\\\ ende`", typeof(string), " 123\t \n\r\\ ende");
+            ExpectResult(options, "`\"\"''`", typeof(string), "\"\"''");
         }
 
         [Test]
@@ -611,7 +678,7 @@ namespace Mastersign.Expressions.Tests.Language
             ExpectResult("1.0M < 2.0M", typeof(bool), true);
             ExpectResult("1I < 2I", typeof(bool), true);
             ExpectResult("1L < 2L", typeof(bool), true);
-            
+
             ExpectResult("100I = 100I", typeof(bool), true);
             ExpectResult("100I = 100L", typeof(bool), true);
             ExpectResult("100I = 100.0F", typeof(bool), true);
@@ -679,7 +746,12 @@ namespace Mastersign.Expressions.Tests.Language
         [Test]
         public void ParameterIgnoreCasingText()
         {
-            var context = new EvaluationContext { IgnoreParameterNameCase = true };
+            var context = new EvaluationContext
+            {
+                Options = new LanguageOptionsBuilder()
+                    .IgnoreParameterNameCase()
+                    .Build(),
+            };
             context.SetParameters(
                 new ParameterInfo("a", typeof(int)),
                 new ParameterInfo("B", typeof(string)));
@@ -724,7 +796,9 @@ namespace Mastersign.Expressions.Tests.Language
             ExpectResult(context, "(yes and no) <> true", typeof(bool), true);
             ExpectResult(context, "hello & quest", typeof(string), "Hello42");
 
-            context.Capabilities = LanguageCapabilities.MemberRead;
+            context.Options = new LanguageOptionsBuilder()
+                .WithMemberRead()
+                .Build();
 
             ExpectResult(context, "(\"abc\" & \"def\").Length", typeof(int), 6);
         }
@@ -820,7 +894,12 @@ namespace Mastersign.Expressions.Tests.Language
         [Test]
         public void FunctionIgnoreCasingTest()
         {
-            var context = new EvaluationContext { IgnoreFunctionNameCase = true };
+            var context = new EvaluationContext
+            {
+                Options = new LanguageOptionsBuilder()
+                    .IgnoreFunctionNameCase()
+                    .Build(),
+            };
             context.AddFunction("test", new FunctionHandle((Func<int, int>)(a => a * 2)));
 
             ExpectResult(context, "test(10)", typeof(int), 20);
@@ -835,7 +914,9 @@ namespace Mastersign.Expressions.Tests.Language
             var context = new EvaluationContext();
             context.AddFunction("test", new FunctionHandle((Func<int, int>)(a => a * 2)));
 
-            context.IgnoreFunctionNameCase = true;
+            context.Options = new LanguageOptionsBuilder()
+                    .IgnoreFunctionNameCase()
+                    .Build();
 
             ExpectResult(context, "test(10)", typeof(int), 20);
             ExpectResult(context, "Test(10)", typeof(int), 20);
@@ -863,41 +944,59 @@ namespace Mastersign.Expressions.Tests.Language
             context.SetVariable("x", "abc");
             context.SetVariable("y", "xyz");
 
-            ExpectResult(context, Conditional.FUNCTION_NAME + "(true, a, b)", typeof(int), 42);
-            ExpectResult(context, Conditional.FUNCTION_NAME + "(false, a, b)", typeof(int), 12);
+            ExpectResult(context, context.Options.ConditionalName + "(true, a, b)", typeof(int), 42);
+            ExpectResult(context, context.Options.ConditionalName + "(false, a, b)", typeof(int), 12);
 
-            ExpectResult(context, Conditional.FUNCTION_NAME + "(a > b, false, true)", typeof(bool), false);
-            ExpectResult(context, Conditional.FUNCTION_NAME + "(100 = a, x, y)", typeof(string), "xyz");
+            ExpectResult(context, context.Options.ConditionalName + "(a > b, false, true)", typeof(bool), false);
+            ExpectResult(context, context.Options.ConditionalName + "(100 = a, x, y)", typeof(string), "xyz");
 
             // wrong number of arguments
-            ExpectError(context, Conditional.FUNCTION_NAME + "()");
-            ExpectError(context, Conditional.FUNCTION_NAME + "(true, 1)");
-            ExpectError(context, Conditional.FUNCTION_NAME + "(true, 1, 2, 3)");
-            ExpectError(context, Conditional.FUNCTION_NAME + "(true, 1, 2, 3, 4)");
+            ExpectError(context, context.Options.ConditionalName + "()");
+            ExpectError(context, context.Options.ConditionalName + "(true, 1)");
+            ExpectError(context, context.Options.ConditionalName + "(true, 1, 2, 3)");
+            ExpectError(context, context.Options.ConditionalName + "(true, 1, 2, 3, 4)");
 
             // wrong argument type
-            ExpectError(context, Conditional.FUNCTION_NAME + "(100, a, b)"); // wrong type for condition
-            ExpectError(context, Conditional.FUNCTION_NAME + "(true, a, x)"); // different types for true and false part
+            ExpectError(context, context.Options.ConditionalName + "(100, a, b)"); // wrong type for condition
+            ExpectError(context, context.Options.ConditionalName + "(true, a, x)"); // different types for true and false part
 
             // wrapped semantic errors
-            ExpectError(context, Conditional.FUNCTION_NAME + "(not_exist(), a, b)"); // invalid function call as parameter
-            ExpectError(context, Conditional.FUNCTION_NAME + "(true, not_exist(), x)"); // invalid function call as parameter
+            ExpectError(context, context.Options.ConditionalName + "(not_exist(), a, b)"); // invalid function call as parameter
+            ExpectError(context, context.Options.ConditionalName + "(true, not_exist(), x)"); // invalid function call as parameter
         }
 
         [Test]
         public void ConditionalCasingTest()
         {
             var context = new EvaluationContext();
-            ExpectResult(context, Conditional.FUNCTION_NAME + "(true, 1, 2)", typeof(int), 1);
-            ExpectError(context, Conditional.FUNCTION_NAME.ToUpperInvariant() + "(true, 1, 2)");
+            ExpectResult(context, "if(true, 1, 2)", typeof(int), 1);
+            ExpectError(context, "IF(true, 1, 2)");
+        }
+
+        [Test]
+        public void ConditionalNamingTest()
+        {
+            var context = new EvaluationContext
+            {
+                Options = new LanguageOptionsBuilder()
+                    .WithConditionalName("when")
+                    .Build(),
+            };
+            ExpectResult(context, "when(true, 1, 2)", typeof(int), 1);
+            ExpectError(context, "if(true, 1, 2)");
         }
 
         [Test]
         public void ConditionalIgnoreCasingTest()
         {
-            var context = new EvaluationContext { IgnoreFunctionNameCase = true };
-            ExpectResult(context, Conditional.FUNCTION_NAME + "(true, 1, 2)", typeof(int), 1);
-            ExpectResult(context, Conditional.FUNCTION_NAME.ToUpperInvariant() + "(true, 1, 2)", typeof(int), 1);
+            var context = new EvaluationContext
+            {
+                Options = new LanguageOptionsBuilder()
+                    .IgnoreConditionalCase()
+                    .Build(),
+            };
+            ExpectResult(context, "if(true, 1, 2)", typeof(int), 1);
+            ExpectResult(context, "IF(true, 1, 2)", typeof(int), 1);
         }
 
         [Test]
@@ -908,10 +1007,10 @@ namespace Mastersign.Expressions.Tests.Language
             context.SetVariable("a", 42);
             context.SetVariable("b", Math.E);
 
-            ExpectResult(context, Conditional.FUNCTION_NAME + "(true, a, b)", typeof(double), 42.0);
-            ExpectResult(context, Conditional.FUNCTION_NAME + "(false, a, b)", typeof(double), Math.E);
-            ExpectResult(context, Conditional.FUNCTION_NAME + "(true, b, a)", typeof(double), Math.E);
-            ExpectResult(context, Conditional.FUNCTION_NAME + "(false, b, a)", typeof(double), 42.0);
+            ExpectResult(context, context.Options.ConditionalName + "(true, a, b)", typeof(double), 42.0);
+            ExpectResult(context, context.Options.ConditionalName + "(false, a, b)", typeof(double), Math.E);
+            ExpectResult(context, context.Options.ConditionalName + "(true, b, a)", typeof(double), Math.E);
+            ExpectResult(context, context.Options.ConditionalName + "(false, b, a)", typeof(double), 42.0);
         }
 
         private static string TestString() { return "Test String"; }
@@ -919,9 +1018,9 @@ namespace Mastersign.Expressions.Tests.Language
         [Test]
         public void MemberReadTest()
         {
-            ExpectReject(Grammar.MemberReadRight, 
+            ExpectReject(Grammar.MemberReadRight,
                 ":Length", "-Length", "Length",
-                ".test()", ".123", 
+                ".test()", ".123",
                 ".", " .", " . ", ".()");
 
             ExpectAccept(Grammar.MemberReadRight,
@@ -934,7 +1033,10 @@ namespace Mastersign.Expressions.Tests.Language
             context.SetVariable("intA", 42, true);
             context.SetVariable("ex", new MemberReadExample(str), true);
             context.AddFunction("f", (Func<string>)TestString);
-            context.Capabilities = LanguageCapabilities.MemberRead;
+
+            context.Options = context.Options.Derive()
+                .WithMemberRead()
+                .Build();
 
             ExpectResult(context, "strA.Length", typeof(int), str.Length);
             ExpectResult(context, "strB.Length", typeof(int), str.Length);
@@ -957,11 +1059,13 @@ namespace Mastersign.Expressions.Tests.Language
         public void GrammarCapabilityMemberReadTest()
         {
             var context = new EvaluationContext();
-            Assert.AreEqual(context.Capabilities, LanguageCapabilities.Basic);
+            Assert.IsFalse(context.Options.MemberRead);
 
             ExpectReject(context.Grammar.Expression.End(), "a.b");
 
-            context.Capabilities = LanguageCapabilities.MemberRead;
+            context.Options = context.Options.Derive()
+                .WithMemberRead()
+                .Build();
 
             ExpectAccept(context.Grammar.Expression.End(), "a.b");
         }
