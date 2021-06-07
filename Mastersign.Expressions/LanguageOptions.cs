@@ -128,7 +128,7 @@ namespace Mastersign.Expressions
 
         public bool IsKeyword(string value)
         {
-            return 
+            return
                 string.Equals(OperatorAndName, value, GetStringComparison(IgnoreOperatorCase)) ||
                 string.Equals(OperatorOrName, value, GetStringComparison(IgnoreOperatorCase)) ||
                 string.Equals(OperatorXorName, value, GetStringComparison(IgnoreOperatorCase)) ||
@@ -137,6 +137,8 @@ namespace Mastersign.Expressions
                 string.Equals(LiteralFalseName, value, GetStringComparison(IgnoreBooleanLiteralCase)) ||
                 string.Equals(ConditionalName, value, GetStringComparison(IgnoreConditionalCase));
         }
+
+        public LanguageOptionsBuilder Derive() => new(this);
     }
 
     public enum QuoteStyle
@@ -148,37 +150,61 @@ namespace Mastersign.Expressions
 
     public class LanguageOptionsBuilder
     {
-        private bool memberRead = LanguageOptions.Default.MemberRead;
+        private bool memberRead;
 
-        private bool ignoreOperatorCase = LanguageOptions.Default.IgnoreOperatorCase;
+        private bool ignoreOperatorCase;
 
-        private bool ignoreBooleanLiteralCase = LanguageOptions.Default.IgnoreBooleanLiteralCase;
+        private bool ignoreBooleanLiteralCase;
 
-        private bool ignoreNullLiteralCase = LanguageOptions.Default.IgnoreNullLiteralCase;
+        private bool ignoreNullLiteralCase;
 
-        private bool ignoreConditionalCase = LanguageOptions.Default.IgnoreConditionalCase;
+        private bool ignoreConditionalCase;
 
-        private bool ignoreVariableNameCase = LanguageOptions.Default.IgnoreVariableNameCase;
+        private bool ignoreVariableNameCase;
 
-        private bool ignoreParameterNameCase = LanguageOptions.Default.IgnoreParameterNameCase;
+        private bool ignoreParameterNameCase;
 
-        private bool ignoreFunctionNameCase = LanguageOptions.Default.IgnoreFunctionNameCase;
+        private bool ignoreFunctionNameCase;
 
-        private QuoteStyle quoteCharacter = LanguageOptions.Default.QuoteCharacter;
+        private QuoteStyle quoteCharacter;
 
-        private string operatorAndName = LanguageOptions.Default.OperatorAndName;
+        private string operatorAndName;
 
-        private string operatorOrName = LanguageOptions.Default.OperatorOrName;
+        private string operatorOrName;
 
-        private string operatorXorName = LanguageOptions.Default.OperatorXorName;
+        private string operatorXorName;
 
-        private string literalTrueName = LanguageOptions.Default.LiteralTrueName;
+        private string literalTrueName;
 
-        private string literalFalseName = LanguageOptions.Default.LiteralFalseName;
+        private string literalFalseName;
 
-        private string literalNullName = LanguageOptions.Default.LiteralNullName;
+        private string literalNullName;
 
-        private string conditionalName = LanguageOptions.Default.ConditionalName;
+        private string conditionalName;
+
+        public LanguageOptionsBuilder(LanguageOptions options)
+        {
+            memberRead = options.MemberRead;
+            ignoreOperatorCase = options.IgnoreOperatorCase;
+            ignoreBooleanLiteralCase = options.IgnoreBooleanLiteralCase;
+            ignoreNullLiteralCase = options.IgnoreNullLiteralCase;
+            ignoreConditionalCase = options.IgnoreConditionalCase;
+            ignoreVariableNameCase = options.IgnoreVariableNameCase;
+            ignoreParameterNameCase = options.IgnoreParameterNameCase;
+            ignoreFunctionNameCase = options.IgnoreFunctionNameCase;
+            quoteCharacter = options.QuoteCharacter;
+            operatorAndName = options.OperatorAndName;
+            operatorOrName = options.OperatorOrName;
+            operatorXorName = options.OperatorXorName;
+            literalTrueName = options.LiteralTrueName;
+            literalFalseName = options.LiteralFalseName;
+            literalNullName = options.LiteralNullName;
+            conditionalName = options.ConditionalName;
+        }
+
+        public LanguageOptionsBuilder()
+            : this(LanguageOptions.Default)
+        { }
 
         public LanguageOptions Build()
         {
@@ -244,17 +270,40 @@ namespace Mastersign.Expressions
             ignoreFunctionNameCase = true;
             return this;
         }
-        public LanguageOptionsBuilder IgnoreCase()
+
+        public LanguageOptionsBuilder IgnoreCase() => IgnoreCase(all: true);
+
+        public LanguageOptionsBuilder IgnoreCase(bool all)
         {
-            ignoreOperatorCase = true;
-            ignoreNullLiteralCase = true;
-            ignoreBooleanLiteralCase = true;
-            ignoreConditionalCase = true;
-            ignoreVariableNameCase = true;
-            ignoreParameterNameCase = true;
-            ignoreFunctionNameCase = true;
+            ignoreOperatorCase = all;
+            ignoreNullLiteralCase = all;
+            ignoreBooleanLiteralCase = all;
+            ignoreConditionalCase = all;
+            ignoreVariableNameCase = all;
+            ignoreParameterNameCase = all;
+            ignoreFunctionNameCase = all;
             return this;
         }
+
+        public LanguageOptionsBuilder IgnoreCase(
+            bool operatorCase = false,
+            bool nullLiteralCase = false,
+            bool booleanLiteralCase = false,
+            bool conditionalCase = false,
+            bool variableNameCase = false,
+            bool parameterNameCase = false,
+            bool functionNameCase = false)
+        {
+            ignoreOperatorCase = operatorCase;
+            ignoreNullLiteralCase = nullLiteralCase;
+            ignoreBooleanLiteralCase = booleanLiteralCase;
+            ignoreConditionalCase = conditionalCase;
+            ignoreVariableNameCase = variableNameCase;
+            ignoreParameterNameCase = parameterNameCase;
+            ignoreFunctionNameCase = functionNameCase;
+            return this;
+        }
+
 
         public LanguageOptionsBuilder WithQuoteCharacter(QuoteStyle character)
         {
