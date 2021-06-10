@@ -184,3 +184,4 @@ A number of language characteristics can be changed by the language options.
 * case ignorance
 * boolean and null literal names
 * conditional function name
+* string quotation style
