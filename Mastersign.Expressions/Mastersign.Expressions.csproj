@@ -15,7 +15,7 @@
 		<PackageProjectUrl>https://github.com/mastersign/Mastersign.Expressions</PackageProjectUrl>
 		<PackageTags>Compiler;Language;Expression</PackageTags>
 		<PackageIcon>icon32.png</PackageIcon>
-		<PackageReadmeFile>../README.md</PackageReadmeFile>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 		
 		<RepositoryType>git</RepositoryType>
 		<RepositoryUrl>https://github.com/mastersign/Mastersign.Expressions.git</RepositoryUrl>
@@ -24,6 +24,7 @@
 
 	<ItemGroup>
 		<None Include="icon/icon32.png" Pack="true" PackagePath="/" />
+		<None Include="../docs/PackageReadme.md" Pack="true" PackagePath="/README.md" />
 	</ItemGroup>
 
 	<ItemGroup>
