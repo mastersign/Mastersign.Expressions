@@ -10,7 +10,7 @@ using Sprache;
 
 namespace Mastersign.Expressions.Tests.Language
 {
-    internal class LanguageTest
+    public class LanguageTest
     {
         #region Helper
 

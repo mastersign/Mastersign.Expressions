@@ -7,7 +7,7 @@ using Mastersign.Expressions.Language;
 
 namespace Mastersign.Expressions.Tests.Language
 {
-    internal class NumericHelperTest
+    public class NumericHelperTest
     {
         [Test]
         public void AutoUpgradeNumericTypeTest()

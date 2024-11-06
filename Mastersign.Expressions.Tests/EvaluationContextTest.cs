@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace Mastersign.Expressions.Tests
 {
-    internal class EvaluationContextTest
+    public class EvaluationContextTest
     {
 
         [Test]
