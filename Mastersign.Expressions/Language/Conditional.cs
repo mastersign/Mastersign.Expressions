@@ -28,13 +28,13 @@ namespace Mastersign.Expressions.Language
             }
             if (!res) return false;
 
-            if (Parameters[0].GetValueType(context) != typeof(bool))
+            if (Parameters[0].GetSafeValueType(context) != typeof(bool))
             {
                 errMessages.AppendLine("The first parameter of the conditional must be a boolean value (true or false).");
                 res = false;
             }
-            var pt1 = Parameters[1].GetValueType(context);
-            var pt2 = Parameters[2].GetValueType(context);
+            var pt1 = Parameters[1].GetSafeValueType(context);
+            var pt2 = Parameters[2].GetSafeValueType(context);
             if (pt1 != pt2)
             {
                 if (NumericHelper.IsNumeric(pt1) && NumericHelper.IsNumeric(pt2))
@@ -73,8 +73,8 @@ namespace Mastersign.Expressions.Language
             var predicate = funcParameterValues[0];
             var resultTrue = funcParameterValues[1];
             var resultFalse = funcParameterValues[2];
-            var pt1 = Parameters[1].GetValueType(context);
-            var pt2 = Parameters[2].GetValueType(context);
+            var pt1 = Parameters[1].GetSafeValueType(context);
+            var pt2 = Parameters[2].GetSafeValueType(context);
             if (pt1 == pt2)
             {
                 return (bool)predicate ? resultTrue : resultFalse;
@@ -95,8 +95,8 @@ namespace Mastersign.Expressions.Language
 
         public override Expression GetExpression(EvaluationContext context)
         {
-            var pt1 = Parameters[1].GetValueType(context);
-            var pt2 = Parameters[2].GetValueType(context);
+            var pt1 = Parameters[1].GetSafeValueType(context);
+            var pt2 = Parameters[2].GetSafeValueType(context);
             if (pt1 == pt2)
             {
                 return Expression.Condition(

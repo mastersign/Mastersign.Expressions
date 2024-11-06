@@ -66,7 +66,7 @@ namespace Mastersign.Expressions.Language
             }
             if (!res) return false;
 
-            var types = (from p in Parameters select p.GetValueType(context)).ToArray();
+            var types = (from p in Parameters select p.GetSafeValueType(context)).ToArray();
             var function = functionGroup.FindMatch(types);
             if (function == null)
             {
@@ -83,7 +83,7 @@ namespace Mastersign.Expressions.Language
         {
             var functionGroup = context.GetFunctionGroup(Identifier);
             if (functionGroup == null) throw new InvalidOperationException("The function does not exist.");
-            var types = (from p in Parameters select p.GetValueType(context)).ToArray();
+            var types = (from p in Parameters select p.GetSafeValueType(context)).ToArray();
             var function = functionGroup.FindMatch(types);
             if (function == null) throw new InvalidOperationException("The function does not match the parameters.");
             return function;

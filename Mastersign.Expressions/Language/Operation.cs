@@ -420,8 +420,8 @@ namespace Mastersign.Expressions.Language
             var res = checkL && checkR;
             if (!res) return false;
 
-            var leftType = left.GetValueType(context);
-            var rightType = right.GetValueType(context);
+            var leftType = left.GetSafeValueType(context);
+            var rightType = right.GetSafeValueType(context);
             Type resultType;
             switch (op.OpType)
             {
@@ -565,6 +565,7 @@ namespace Mastersign.Expressions.Language
                     }
                     return resultType;
                 case OperatorType.Relation:
+                    return typeof(bool);
                 case OperatorType.Boolean:
                     return typeof(bool);
                 case OperatorType.String:

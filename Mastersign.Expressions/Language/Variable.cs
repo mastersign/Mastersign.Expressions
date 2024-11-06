@@ -55,14 +55,14 @@ namespace Mastersign.Expressions.Language
             }
             if (context.IsVariableConstant(Name))
             {
-                return Expression.Constant(GetValue(context), GetValueType(context));
+                return Expression.Constant(GetValue(context), this.GetSafeValueType(context));
             }
             return Expression.Convert(
                 Expression.Call(
                     Expression.Constant(context, typeof(EvaluationContext)),
                     typeof(EvaluationContext).GetMethod("ReadVariable", new[] { typeof(string) }),
                     Expression.Constant(Name, typeof(string))),
-                GetValueType(context));
+                this.GetSafeValueType(context));
         }
     }
 }

@@ -43,7 +43,7 @@ namespace Mastersign.Expressions.Language
         {
             var res = Target.CheckSemantic(context, errMessages);
 
-            var targetType = Target.GetValueType(context);
+            var targetType = Target.GetSafeValueType(context);
             var members = GetMatchingMembers(context);
             if (members.Length > 1)
             {
@@ -65,7 +65,7 @@ namespace Mastersign.Expressions.Language
 
         private MemberInfo[] GetMatchingMembers(EvaluationContext context)
         {
-            var targetType = Target.GetValueType(context);
+            var targetType = Target.GetSafeValueType(context);
             return targetType
                 .GetMember(MemberIdentifier)
                 .Where(m => (m is PropertyInfo && ((PropertyInfo)m).GetGetMethod() != null)
