@@ -647,7 +647,25 @@ namespace Mastersign.Expressions.Tests.Language
             ExpectError("1 < null");
             ExpectError("null < 1");
             ExpectError("null < \"a\"");
+            ExpectError("null < null");
+
+            ExpectError("true = null");
+            ExpectError("true <> null");
+            ExpectError("null = true");
+            ExpectError("null <> true");
+
+            ExpectError("1 = null");
+            ExpectError("null = 1");
             ExpectError("1 <> null");
+            ExpectError("null <> 1");
+
+            ExpectResult("null = null", typeof(bool), true);
+            ExpectResult("null <> null", typeof(bool), false);
+
+            ExpectResult("null = \"a\"", typeof(bool), false);
+            ExpectResult("null <> \"a\"", typeof(bool), true);
+            ExpectResult("\"a\" = null", typeof(bool), false);
+            ExpectResult("\"a\" <> null", typeof(bool), true);
 
             ExpectResult("1 < 2", typeof(bool), true);
             ExpectResult("2 < 2", typeof(bool), false);
@@ -705,9 +723,14 @@ namespace Mastersign.Expressions.Tests.Language
             ExpectResult("100.0M = 100L", typeof(bool), true);
             ExpectResult("100.0M = 100.0M", typeof(bool), true);
 
+            ExpectResult("\"a\" = \"a\"", typeof(bool), true);
+            ExpectResult("\"a\" <> \"a\"", typeof(bool), false);
+            ExpectResult("\"a\" = \"b\"", typeof(bool), false);
+            ExpectResult("\"a\" <> \"b\"", typeof(bool), true);
+            ExpectResult("\"a\" < \"a\"", typeof(bool), false);
+            ExpectResult("\"a\" < \"A\"", typeof(bool), true);
             ExpectResult("\"a\" < \"b\"", typeof(bool), true);
-            ExpectResult("\"a\" = \"A\"", typeof(bool), false);
-            ExpectResult("null <> \"a\"", typeof(bool), true);
+
         }
 
         [Test]
@@ -932,6 +955,65 @@ namespace Mastersign.Expressions.Tests.Language
             context.AddFunction("twice", new FunctionHandle((Func<string>)(() => "Two")));
 
             ExpectError("twice()");
+        }
+
+        [Test]
+        public void NullTestTest()
+        {
+            var context = new EvaluationContext();
+            context.SetVariable("v1", null);
+            context.SetVariable("v2", true);
+            context.SetVariable("v3", 1);
+            context.SetVariable("v4", "A");
+            context.SetVariable("v5", new object());
+
+            ExpectResult(context, context.Options.NullTestName + "(null)", typeof(bool), true);
+            ExpectResult(context, context.Options.NullTestName + "(v1)", typeof(bool), true);
+            ExpectResult(context, context.Options.NullTestName + "(v2)", typeof(bool), false);
+            ExpectResult(context, context.Options.NullTestName + "(v3)", typeof(bool), false);
+            ExpectResult(context, context.Options.NullTestName + "(v4)", typeof(bool), false);
+            ExpectResult(context, context.Options.NullTestName + "(v5)", typeof(bool), false);
+
+            // wrong number of arguments
+            ExpectError(context, context.Options.NullTestName + "()");
+            ExpectError(context, context.Options.NullTestName + "(null, null)");
+
+            // wrapped semantic errors
+            ExpectError(context, context.Options.NullTestName + "(not_exist())"); // invalid function call as parameter
+        }
+
+        [Test]
+        public void NullTestCasingTest()
+        {
+            var context = new EvaluationContext();
+            ExpectResult(context, "isnull(null)", typeof(bool), true);
+            ExpectError(context, "ISNULL(null)");
+        }
+
+        [Test]
+        public void NullTestNamingTest()
+        {
+            var context = new EvaluationContext
+            {
+                Options = new LanguageOptionsBuilder()
+                    .WithNullTestName("nul")
+                    .Build(),
+            };
+            ExpectResult(context, "nul(null)", typeof(bool), true);
+            ExpectError(context, "isnull(null)");
+        }
+
+        [Test]
+        public void NullTestIgnoreCasingTest()
+        {
+            var context = new EvaluationContext
+            {
+                Options = new LanguageOptionsBuilder()
+                    .IgnoreNullTestCase()
+                    .Build(),
+            };
+            ExpectResult(context, "isnull(null)", typeof(bool), true);
+            ExpectResult(context, "ISNULL(null)", typeof(bool), true);
         }
 
         [Test]

@@ -152,7 +152,22 @@ If a function named _sin_ with one parameter of the type `System.Double` for com
 Under one name, more than one function can be registered if the parameterlists are distinctive. This is called overloading. When calling an overloaded function within an expression, the best fitting alternative is used.
 
 ### Integrated Functions
-There is currently one function integrated into the syntax of Mastersign.Expressions.
+There are currently two function integrated into the syntax of Mastersign.Expressions.
+
+#### `isnull(value)`
+
+_since version 0.7.0_
+
+Function to test if the given value is a `null` reference and
+evaluates to a boolean.
+Value types like booleans and numbers can never be null.
+Literal strings can not be null.
+But strings can be null, if they are passed in via variable or parameter.
+
+* Syntax: isnull(_value_)
+* Example: `isnull(a)`
+
+Hint: The name of the null test function can be changed in the language options.
 
 #### `if(condition, then, else)`
 
@@ -184,4 +199,5 @@ A number of language characteristics can be changed by the language options.
 * case ignorance
 * boolean and null literal names
 * conditional function name
+* null test function name
 * string quotation style

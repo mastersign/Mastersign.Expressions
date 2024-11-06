@@ -259,13 +259,18 @@ namespace Mastersign.Expressions.Language
         public Parser<FunctionCall> FunctionCall
             => from call in
                    (from identifier in Identifier.Token()
-                       select string.Equals(identifier, options.ConditionalName, options.GetStringComparison(options.IgnoreConditionalCase))
-                        ? new Conditional(options.IgnoreConditionalCase
+                       select 
+                        string.Equals(identifier, options.NullTestName, options.GetStringComparison(options.IgnoreNullTestCase))
+                        ? new NullTest(options.IgnoreNullTestCase
                             ? identifier.ToLowerInvariant()
                             : identifier)
-                        : new FunctionCall(options.IgnoreFunctionNameCase
-                            ? identifier.ToLowerInvariant()
-                            : identifier))
+                        : string.Equals(identifier, options.ConditionalName, options.GetStringComparison(options.IgnoreConditionalCase))
+                            ? new Conditional(options.IgnoreConditionalCase
+                                ? identifier.ToLowerInvariant()
+                                : identifier)
+                            : new FunctionCall(options.IgnoreFunctionNameCase
+                                ? identifier.ToLowerInvariant()
+                                : identifier))
                from lPar in Parse.Char('(')
                from parameters in ExpressionList
                    .Or(Parse.WhiteSpace.Many().Return(Chain<ExpressionElement>.Empty))

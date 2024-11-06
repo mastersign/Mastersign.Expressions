@@ -308,7 +308,7 @@ namespace Mastersign.Expressions.Language
                     if (this == RelationGreaterOrEqual) return Expression.GreaterThanOrEqual(leftExpr, rightExpr);
                     if (this == RelationGreater) return Expression.GreaterThan(leftExpr, rightExpr);
                 }
-                else if (leftExpr.Type == typeof (bool) || rightExpr.Type == typeof(bool))
+                else if (leftExpr.Type == typeof(bool) || rightExpr.Type == typeof(bool))
                 {
                     if (this == RelationEqual) return Expression.Equal(leftExpr, rightExpr);
                     if (this == RelationUnequal) return Expression.NotEqual(leftExpr, rightExpr);
@@ -470,7 +470,12 @@ namespace Mastersign.Expressions.Language
                 case OperatorType.String:
                     break;
                 case OperatorType.Relation:
-                    if (leftType == typeof(string))
+                    if ((op == Operator.RelationEqual || op == Operator.RelationUnequal)
+                        && (!leftType.IsValueType && !rightType.IsValueType))
+                    {
+                        // equality between refrence types is always defined
+                    }
+                    else if (leftType == typeof(string))
                     {
                         if (rightType != typeof(string))
                         {
@@ -497,7 +502,7 @@ namespace Mastersign.Expressions.Language
                             res = false;
                         }
                     }
-                    else if ((op == Operator.RelationEqual || op == Operator.RelationUnequal))
+                    else if (op == Operator.RelationEqual || op == Operator.RelationUnequal)
                     {
                         if (leftType == typeof(bool) && rightType != typeof(bool))
                         {

@@ -13,6 +13,8 @@ namespace Mastersign.Expressions
 
         public bool IgnoreNullLiteralCase { get; }
 
+        public bool IgnoreNullTestCase { get; }
+
         public bool IgnoreConditionalCase { get; }
 
         public bool IgnoreVariableNameCase { get; }
@@ -37,6 +39,8 @@ namespace Mastersign.Expressions
 
         public string ConditionalName { get; }
 
+        public string NullTestName { get; }
+
         public char StartQuoteChar => QuoteCharacter switch
         {
             QuoteStyle.SingleQuote => '\'',
@@ -56,6 +60,7 @@ namespace Mastersign.Expressions
             bool ignoreOperatorCase,
             bool ignoreBooleanLiteralCase,
             bool ignoreNullLiteralCase,
+            bool ignoreNullTestCase,
             bool ignoreConditionalCase,
             bool ignoreVariableNameCase,
             bool ignoreParameterNameCase,
@@ -67,12 +72,14 @@ namespace Mastersign.Expressions
             string literalTrueName,
             string literalFalseName,
             string literalNullName,
-            string conditionalName)
+            string conditionalName,
+            string nullTestName)
         {
             MemberRead = memberRead;
             IgnoreOperatorCase = ignoreOperatorCase;
             IgnoreBooleanLiteralCase = ignoreBooleanLiteralCase;
             IgnoreNullLiteralCase = ignoreNullLiteralCase;
+            IgnoreNullTestCase = ignoreNullTestCase;
             IgnoreConditionalCase = ignoreConditionalCase;
             IgnoreVariableNameCase = ignoreVariableNameCase;
             IgnoreParameterNameCase = ignoreParameterNameCase;
@@ -85,6 +92,7 @@ namespace Mastersign.Expressions
             LiteralFalseName = literalFalseName;
             LiteralNullName = literalNullName;
             ConditionalName = conditionalName;
+            NullTestName = nullTestName;
         }
 
         public StringComparison GetStringComparison(bool ignoreCase)
@@ -98,6 +106,7 @@ namespace Mastersign.Expressions
             ignoreOperatorCase: false,
             ignoreBooleanLiteralCase: false,
             ignoreNullLiteralCase: false,
+            ignoreNullTestCase: false,
             ignoreConditionalCase: false,
             ignoreVariableNameCase: false,
             ignoreParameterNameCase: false,
@@ -109,7 +118,8 @@ namespace Mastersign.Expressions
             literalTrueName: "true",
             literalFalseName: "false",
             literalNullName: "null",
-            conditionalName: "if"
+            conditionalName: "if",
+            nullTestName: "isnull"
         );
 
         public IEnumerable<string> Keywords
@@ -123,6 +133,7 @@ namespace Mastersign.Expressions
                 yield return LiteralTrueName;
                 yield return LiteralFalseName;
                 yield return ConditionalName;
+                yield return NullTestName;
             }
         }
 
@@ -135,7 +146,8 @@ namespace Mastersign.Expressions
                 string.Equals(LiteralNullName, value, GetStringComparison(IgnoreNullLiteralCase)) ||
                 string.Equals(LiteralTrueName, value, GetStringComparison(IgnoreBooleanLiteralCase)) ||
                 string.Equals(LiteralFalseName, value, GetStringComparison(IgnoreBooleanLiteralCase)) ||
-                string.Equals(ConditionalName, value, GetStringComparison(IgnoreConditionalCase));
+                string.Equals(ConditionalName, value, GetStringComparison(IgnoreConditionalCase)) ||
+                string.Equals(NullTestName, value, GetStringComparison(IgnoreNullTestCase));
         }
 
         public LanguageOptionsBuilder Derive() => new(this);
@@ -157,6 +169,8 @@ namespace Mastersign.Expressions
         private bool ignoreBooleanLiteralCase;
 
         private bool ignoreNullLiteralCase;
+
+        private bool ignoreNullTestCase;
 
         private bool ignoreConditionalCase;
 
@@ -182,12 +196,15 @@ namespace Mastersign.Expressions
 
         private string conditionalName;
 
+        private string nullTestName;
+
         public LanguageOptionsBuilder(LanguageOptions options)
         {
             memberRead = options.MemberRead;
             ignoreOperatorCase = options.IgnoreOperatorCase;
             ignoreBooleanLiteralCase = options.IgnoreBooleanLiteralCase;
             ignoreNullLiteralCase = options.IgnoreNullLiteralCase;
+            ignoreNullTestCase = options.IgnoreNullTestCase;
             ignoreConditionalCase = options.IgnoreConditionalCase;
             ignoreVariableNameCase = options.IgnoreVariableNameCase;
             ignoreParameterNameCase = options.IgnoreParameterNameCase;
@@ -200,6 +217,7 @@ namespace Mastersign.Expressions
             literalFalseName = options.LiteralFalseName;
             literalNullName = options.LiteralNullName;
             conditionalName = options.ConditionalName;
+            nullTestName = options.NullTestName;
         }
 
         public LanguageOptionsBuilder()
@@ -213,6 +231,7 @@ namespace Mastersign.Expressions
                 ignoreOperatorCase,
                 ignoreBooleanLiteralCase,
                 ignoreNullLiteralCase,
+                ignoreNullTestCase,
                 ignoreConditionalCase,
                 ignoreVariableNameCase,
                 ignoreParameterNameCase,
@@ -224,7 +243,8 @@ namespace Mastersign.Expressions
                 literalTrueName,
                 literalFalseName,
                 literalNullName,
-                conditionalName);
+                conditionalName,
+                nullTestName);
         }
 
         public LanguageOptionsBuilder WithMemberRead()
@@ -239,15 +259,19 @@ namespace Mastersign.Expressions
             return this;
         }
 
+        public LanguageOptionsBuilder IgnoreBooleanLiteralCase()
+        {
+            ignoreBooleanLiteralCase = true;
+            return this;
+        }
         public LanguageOptionsBuilder IgnoreNullLiteralCase()
         {
             ignoreNullLiteralCase = true;
             return this;
         }
-
-        public LanguageOptionsBuilder IgnoreBooleanLiteralCase()
+        public LanguageOptionsBuilder IgnoreNullTestCase()
         {
-            ignoreBooleanLiteralCase = true;
+            ignoreNullTestCase = true;
             return this;
         }
         public LanguageOptionsBuilder IgnoreConditionalCase()
@@ -277,6 +301,7 @@ namespace Mastersign.Expressions
         {
             ignoreOperatorCase = all;
             ignoreNullLiteralCase = all;
+            ignoreNullTestCase = all;
             ignoreBooleanLiteralCase = all;
             ignoreConditionalCase = all;
             ignoreVariableNameCase = all;
@@ -288,6 +313,7 @@ namespace Mastersign.Expressions
         public LanguageOptionsBuilder IgnoreCase(
             bool operatorCase = false,
             bool nullLiteralCase = false,
+            bool nullTestCase = false,
             bool booleanLiteralCase = false,
             bool conditionalCase = false,
             bool variableNameCase = false,
@@ -296,6 +322,7 @@ namespace Mastersign.Expressions
         {
             ignoreOperatorCase = operatorCase;
             ignoreNullLiteralCase = nullLiteralCase;
+            ignoreNullTestCase = nullTestCase;
             ignoreBooleanLiteralCase = booleanLiteralCase;
             ignoreConditionalCase = conditionalCase;
             ignoreVariableNameCase = variableNameCase;
@@ -329,6 +356,12 @@ namespace Mastersign.Expressions
             operatorAndName = andName;
             operatorOrName = orName;
             operatorXorName = xorName;
+            return this;
+        }
+
+        public LanguageOptionsBuilder WithNullTestName(string name)
+        {
+            nullTestName = name;
             return this;
         }
 
