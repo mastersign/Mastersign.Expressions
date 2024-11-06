@@ -30,7 +30,7 @@ namespace Mastersign.Expressions.Functions
         public static string DecimalToString(Decimal v) { return v.ToString(CultureInfo.InvariantCulture); }
         public static string BooleanToString(bool v) { return v.ToString(CultureInfo.InvariantCulture); }
         public static string DateTimeToString(DateTime v) { return v.ToString(CultureInfo.InvariantCulture); }
-        public static string StringToString(string v) { return v; }
-        public static string ObjectToString(object v) { return v.ToString(); }
+        public static string StringToString(string v) { return v ?? string.Empty; }
+        public static string ObjectToString(object v) { return v == null ? string.Empty : v.ToString(); }
     }
 }
