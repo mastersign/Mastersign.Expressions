@@ -122,6 +122,30 @@ namespace Mastersign.Expressions
             nullTestName: "isnull"
         );
 
+        public static LanguageOptions Create(bool ignoreCase = false, QuoteStyle quoteCharacter = QuoteStyle.DoubleQuote, bool memberRead = true)
+        {
+            return new LanguageOptions(
+                memberRead: memberRead,
+                ignoreOperatorCase: ignoreCase,
+                ignoreBooleanLiteralCase: ignoreCase,
+                ignoreNullLiteralCase: ignoreCase,
+                ignoreNullTestCase: ignoreCase,
+                ignoreConditionalCase: ignoreCase,
+                ignoreVariableNameCase: ignoreCase,
+                ignoreParameterNameCase: ignoreCase,
+                ignoreFunctionNameCase: ignoreCase,
+                quoteCharacter: quoteCharacter,
+                operatorAndName: "and",
+                operatorOrName: "or",
+                operatorXorName: "xor",
+                literalTrueName: "true",
+                literalFalseName: "false",
+                literalNullName: "null",
+                conditionalName: "if",
+                nullTestName: "isnull"
+            );
+        }
+
         public IEnumerable<string> Keywords
         {
             get
