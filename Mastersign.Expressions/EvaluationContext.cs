@@ -114,7 +114,6 @@ namespace Mastersign.Expressions
         /// <param name="name">The name of the variable.</param>
         public void RemoveVariable(string name)
         {
-
             variableLookup.Remove(name);
         }
 
@@ -138,7 +137,7 @@ namespace Mastersign.Expressions
         {
             if (!VariableExists(name))
             {
-                throw new ArgumentException("Variable does not exists.", "name");
+                throw new ArgumentException($"Variable {name} does not exists.", "name");
             }
             Tuple<object, bool> variable;
             return variableLookup.TryGetValue(name, out variable)
@@ -156,7 +155,7 @@ namespace Mastersign.Expressions
         {
             if (!VariableExists(name))
             {
-                throw new ArgumentException("Variable does not exists.", "name");
+                throw new ArgumentException($"Variable {name} does not exists.", "name");
             }
             Tuple<object, bool> variable;
             return variableLookup.TryGetValue(name, out variable)

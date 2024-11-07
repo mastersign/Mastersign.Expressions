@@ -71,7 +71,8 @@ namespace Mastersign.Expressions.Language
             if (function == null)
             {
                 errMessages.AppendLine(string.Format(
-                    "The function '{0}' does not match the given parameters.",
+                    "The function '{0}' does not match the given parameters. Given parameter types: "
+                    + string.Join(", ", types.Select(t => t.FullName)),
                     Identifier));
                 res = false;
             }
