@@ -59,6 +59,8 @@ static class Program
     {
         // create the evaluation context for the expression
         var context = new EvaluationContext();
+        // set language options
+        context.Options = LanguageOptions.Create(ignoreCase: true);
         // load the default packages with functions and constants (math, string, ...)
         context.LoadAllPackages();
         // add a custom variable
@@ -68,7 +70,7 @@ static class Program
         // set parameter list
         context.SetParameters(new ParameterInfo("a", typeof(int)));
         // compile the expression into a lamda delegate
-        var fun = context.CompileExpression<int, double>("sin(pi * neg(10 + x)) + a");
+        var fun = context.CompileExpression<int, double>("SIN(PI * NEG(10 + x)) + a");
         // call the delegate and write the result to the console
         Console.WriteLine(fun(50));
     }
