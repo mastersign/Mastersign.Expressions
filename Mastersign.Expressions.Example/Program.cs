@@ -7,13 +7,13 @@ static class Program
     {
         // Prepare some language options
         var langOptions = new LanguageOptionsBuilder()
-            .IgnoreBooleanLiteralCase()
-            .IgnoreNullLiteralCase()
-            .WithConditionalName("iif")
+            .IgnoreFunctionNameCase()
             .Build();
 
         // Create a main evaluation context for all your expressions
         var mainContext = new EvaluationContext();
+        // Apply language options to context
+        mainContext.Options = langOptions;
 
         // Load all default packages (math, string manipulation, ...)
         mainContext.LoadAllPackages();
@@ -32,23 +32,26 @@ static class Program
         contextA.SetParameters(new ParameterInfo("a", typeof(int)));
 
         // Compile an expression into a lambda delegate using context A
-        var exprA = "sin(pi * neg(10.0 + x)) + a";
+        var exprA = "SIN(pi * NEG(10.0 + x)) + a";
         var funA = contextA.CompileExpression<int, double>(exprA);
 
         // Create a second evaluation context (B)
         var contextB = new EvaluationContext(mainContext);
-
-            // derive new language options
-            // and assign them to the second eval context
+        
+        // derive new language options
+        // and assign them to the second eval context
         contextB.Options = langOptions.Derive()
             .IgnoreVariableNameCase()
+            .WithConditionalName("iif")
+            .IgnoreConditionalCase()
+            .WithQuoteCharacter(QuoteStyle.SingleQuote)
             .Build();
 
         // Add a custom variable to context B
         contextB.SetVariable("x", 0);
 
         // Compile an expression into a lambda delegate using context B
-        var exprB = "\"High \" & X & \"!\"";
+        var exprB = "'High ' & X & IIF(x > 0, '!', '')";
         var funB = contextB.CompileExpression<string>(exprB);
 
         // update a custom variable after compilation
