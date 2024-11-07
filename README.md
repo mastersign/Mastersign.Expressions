@@ -66,7 +66,7 @@ static class Program
         // add a custom variable
         context.SetVariable("x", 4);
         // add a custom function
-        context.AddFunction("neg", (Func<double, double>)(v => -v));
+        context.AddFunction<double, double>("neg", v => -v);
         // set parameter list
         context.SetParameters(new ParameterInfo("a", typeof(int)));
         // compile the expression into a lamda delegate

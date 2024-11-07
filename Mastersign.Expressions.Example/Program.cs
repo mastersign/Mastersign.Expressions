@@ -19,7 +19,7 @@ static class Program
         mainContext.LoadAllPackages();
 
         // Add a custom function to the main context
-        mainContext.AddFunction("neg", (Func<double, double>)(v => -v));
+        mainContext.AddFunction<double, double>("neg", v => -v);
 
         // Create an evaluation context (A), which inherits all variables 
         // and functions from the main context
