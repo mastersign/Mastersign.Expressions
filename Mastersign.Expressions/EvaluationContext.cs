@@ -207,6 +207,105 @@ namespace Mastersign.Expressions
             AddFunction(kvp);
         }
 
+        /// <summary>
+        /// Adds a single function to the context. If there are functions allready registered under the given 
+        /// function name, the new function will be added to the function group.
+        /// </summary>
+        /// <param name="identifier">The function name.</param>
+        /// <param name="function">The function.</param>
+        public void AddFunction<TResult>(string identifier, Func<TResult> function)
+        {
+            AddFunction(identifier, (FunctionHandle)function);
+        }
+
+        /// <summary>
+        /// Adds a single function to the context. If there are functions allready registered under the given 
+        /// function name, the new function will be added to the function group.
+        /// </summary>
+        /// <param name="identifier">The function name.</param>
+        /// <param name="function">The function.</param>
+        public void AddFunction<P1, TResult>(string identifier, Func<P1, TResult> function)
+        {
+            AddFunction(identifier, (FunctionHandle)function);
+        }
+
+        /// <summary>
+        /// Adds a single function to the context. If there are functions allready registered under the given 
+        /// function name, the new function will be added to the function group.
+        /// </summary>
+        /// <param name="identifier">The function name.</param>
+        /// <param name="function">The function.</param>
+        public void AddFunction<P1, P2, TResult>(string identifier, Func<P1, P2, TResult> function)
+        {
+            AddFunction(identifier, (FunctionHandle)function);
+        }
+
+        /// <summary>
+        /// Adds a single function to the context. If there are functions allready registered under the given 
+        /// function name, the new function will be added to the function group.
+        /// </summary>
+        /// <param name="identifier">The function name.</param>
+        /// <param name="function">The function.</param>
+        public void AddFunction<P1, P2, P3, TResult>(string identifier, Func<P1, P2, P3, TResult> function)
+        {
+            AddFunction(identifier, (FunctionHandle)function);
+        }
+
+        /// <summary>
+        /// Adds a single function to the context. If there are functions allready registered under the given 
+        /// function name, the new function will be added to the function group.
+        /// </summary>
+        /// <param name="identifier">The function name.</param>
+        /// <param name="function">The function.</param>
+        public void AddFunction<P1, P2, P3, P4, TResult>(string identifier, Func<P1, P2, P3, P4, TResult> function)
+        {
+            AddFunction(identifier, (FunctionHandle)function);
+        }
+
+        /// <summary>
+        /// Adds a single function to the context. If there are functions allready registered under the given 
+        /// function name, the new function will be added to the function group.
+        /// </summary>
+        /// <param name="identifier">The function name.</param>
+        /// <param name="function">The function.</param>
+        public void AddFunction<P1, P2, P3, P4, P5, TResult>(string identifier, Func<P1, P2, P3, P4, P5, TResult> function)
+        {
+            AddFunction(identifier, (FunctionHandle)function);
+        }
+
+        /// <summary>
+        /// Adds a single function to the context. If there are functions allready registered under the given 
+        /// function name, the new function will be added to the function group.
+        /// </summary>
+        /// <param name="identifier">The function name.</param>
+        /// <param name="function">The function.</param>
+        public void AddFunction<P1, P2, P3, P4, P5, P6, TResult>(string identifier, Func<P1, P2, P3, P4, P5, P6, TResult> function)
+        {
+            AddFunction(identifier, (FunctionHandle)function);
+        }
+
+        /// <summary>
+        /// Adds a single function to the context. If there are functions allready registered under the given 
+        /// function name, the new function will be added to the function group.
+        /// </summary>
+        /// <param name="identifier">The function name.</param>
+        /// <param name="function">The function.</param>
+        public void AddFunction<P1, P2, P3, P4, P5, P6, P7, TResult>(string identifier, Func<P1, P2, P3, P4, P5, P6, P7, TResult> function)
+        {
+            AddFunction(identifier, (FunctionHandle)function);
+        }
+
+        /// <summary>
+        /// Adds a single function to the context. If there are functions allready registered under the given 
+        /// function name, the new function will be added to the function group.
+        /// </summary>
+        /// <param name="identifier">The function name.</param>
+        /// <param name="function">The function.</param>
+        public void AddFunction<P1, P2, P3, P4, P5, P6, P7, P8, TResult>(string identifier, Func<P1, P2, P3, P4, P5, P6, P7, P8, TResult> function)
+        {
+            AddFunction(identifier, (FunctionHandle)function);
+        }
+
         private void AddFunction(KeyValuePair<string, FunctionHandle> function)
         {
             FunctionGroup group;
